@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { PRODUCTS } from '@/lib/products'
 import { fmt } from '@/lib/validation'
+import { useProducts } from '@/services/useProducts'
 
 const QUESTIONS = [
   {
@@ -63,6 +63,7 @@ const QUESTIONS = [
 ]
 
 export default function AIAdvisorPage() {
+  const { products, loading } = useProducts()  // 👈 add this
   const [phase, setPhase]     = useState('intro')   // intro | quiz | loading | results
   const [qIndex, setQIndex]   = useState(0)
   const [answers, setAnswers] = useState({})
@@ -97,7 +98,7 @@ export default function AIAdvisorPage() {
   const getRecommendations = () => {
     const budget = answers.budget || '1500-2500'
     const [min, max] = budget === '3500+' ? [3500, 99999] : budget.split('-').map(Number)
-    return PRODUCTS
+    return products
       .filter(p => p.price >= min && (budget === '3500+' || p.price <= max))
       .slice(0, 3)
       .map((p, i) => ({ ...p, matchScore: 98 - i * 6, matchReason: i === 0 ? 'Best Match' : i === 1 ? 'Great Alternative' : 'Budget Pick' }))
@@ -184,6 +185,12 @@ export default function AIAdvisorPage() {
       <h2 style={{fontFamily:'Bebas Neue',fontSize:32,letterSpacing:2}}>ANALYSING YOUR PROFILE</h2>
       <p style={{color:'var(--mid)',fontSize:14}}>Finding your perfect shoes...</p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
+
+    if (phase === 'results' && loading) return (
+    <div style={{minHeight:'calc(100vh - var(--nav-h))',display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <p style={{color:'var(--mid)'}}>Loading recommendations...</p>
     </div>
   )
 
