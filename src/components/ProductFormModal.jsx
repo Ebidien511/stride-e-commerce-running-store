@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
-import { addProduct } from '@/services/productServices'
+import { addProduct, updateProduct } from '@/services/productServices'
+
 const BRANDS = ['Nike', 'ASICS', 'Brooks', 'Hoka', 'Adidas', 'New Balance', 'On Running', 'Saucony', 'Puma', 'New Era']
 const CATEGORIES = ['road', 'trail', 'track', 'gym']
 const ARCH_TYPES = ['Neutral', 'Stability', 'Motion Control']
@@ -11,33 +12,42 @@ const EMOJIS = ['👟', '🥾', '👠', '🩴', '👞']
 const EMPTY_FORM = {
   brand: '', name: '', category: '', arch: '', terrain: '',
   drop: '', weight: '', price: '', originalPrice: '',
-  tag: '', emoji: '👟', description: '', features: '',
-  stock: '',
+  tag: '', emoji: '👟', description: '', features: '', stock: '',
 }
 
-const FIELD_LABELS = {
-  brand: 'Brand', name: 'Product Name', category: 'Category',
-  arch: 'Arch Support', terrain: 'Terrain', drop: 'Heel Drop',
-  weight: 'Weight', price: 'Price (R)', originalPrice: 'Original Price (R)',
-  tag: 'Tag', emoji: 'Emoji', description: 'Description',
-  features: 'Features', stock: 'Stock',
-}
+// When editing, convert the product object to form-compatible values
+const productToForm = (product) => ({
+  brand: product.brand || '',
+  name: product.name || '',
+  category: product.category || '',
+  arch: product.arch || '',
+  terrain: product.terrain || '',
+  drop: product.drop || '',
+  weight: product.weight || '',
+  price: product.price?.toString() || '',
+  originalPrice: product.originalPrice?.toString() || '',
+  tag: product.tag || '',
+  emoji: product.emoji || '👟',
+  description: product.description || '',
+  features: Array.isArray(product.features) ? product.features.join('\n') : '',
+  stock: product.stock?.toString() || '',
+})
 
 function validate(form) {
   const errors = {}
-  if (!form.brand)       errors.brand = 'Brand is required'
-  if (!form.name.trim()) errors.name  = 'Product name is required'
-  if (!form.category)    errors.category = 'Category is required'
-  if (!form.arch)        errors.arch  = 'Arch type is required'
-  if (!form.terrain)     errors.terrain = 'Terrain is required'
-  if (!form.drop.trim()) errors.drop  = 'Heel drop is required (e.g. 8mm)'
-  if (!form.weight.trim()) errors.weight = 'Weight is required (e.g. 280g)'
+  if (!form.brand)           errors.brand = 'Brand is required'
+  if (!form.name.trim())     errors.name = 'Product name is required'
+  if (!form.category)        errors.category = 'Category is required'
+  if (!form.arch)            errors.arch = 'Arch type is required'
+  if (!form.terrain)         errors.terrain = 'Terrain is required'
+  if (!form.drop.trim())     errors.drop = 'Heel drop is required (e.g. 8mm)'
+  if (!form.weight.trim())   errors.weight = 'Weight is required (e.g. 280g)'
   if (!form.price || isNaN(Number(form.price)) || Number(form.price) <= 0)
     errors.price = 'Enter a valid price'
   if (form.originalPrice && (isNaN(Number(form.originalPrice)) || Number(form.originalPrice) <= Number(form.price)))
     errors.originalPrice = 'Original price must be greater than current price'
   if (!form.description.trim()) errors.description = 'Description is required'
-  if (!form.features.trim()) errors.features = 'Enter at least one feature'
+  if (!form.features.trim())    errors.features = 'Enter at least one feature'
   if (form.stock === '' || isNaN(Number(form.stock)) || Number(form.stock) < 0)
     errors.stock = 'Enter a valid stock number'
   return errors
@@ -45,6 +55,28 @@ function validate(form) {
 
 function slugify(brand, name) {
   return `${brand}-${name}`.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+}
+
+function buildProductPayload(form, existingId = null) {
+  const stock = Number(form.stock)
+  return {
+    id: existingId || slugify(form.brand, form.name),
+    brand: form.brand,
+    name: form.name.trim(),
+    category: form.category,
+    arch: form.arch,
+    terrain: form.terrain,
+    drop: form.drop.trim(),
+    weight: form.weight.trim(),
+    price: Number(form.price),
+    originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
+    tag: form.tag || null,
+    emoji: form.emoji,
+    description: form.description.trim(),
+    features: form.features.split('\n').map(f => f.trim()).filter(Boolean),
+    stock,
+    status: stock === 0 ? 'Out of Stock' : stock <= 5 ? 'Low Stock' : 'Active',
+  }
 }
 
 const inputStyle = (hasError) => ({
@@ -57,15 +89,25 @@ const inputStyle = (hasError) => ({
 const selectStyle = (hasError) => ({
   ...inputStyle(hasError), cursor: 'pointer', appearance: 'none',
   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
-  backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center',
-  paddingRight: 32,
+  backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', paddingRight: 32,
 })
 
-const labelStyle = { fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.2px', color: 'var(--mid)', marginBottom: 6, display: 'block', fontFamily: 'DM Mono' }
+const labelStyle = {
+  fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.2px',
+  color: 'var(--mid)', marginBottom: 6, display: 'block', fontFamily: 'DM Mono',
+}
 const errorStyle = { fontSize: 11, color: '#ef4444', marginTop: 4, fontWeight: 500 }
 
-export default function AddProductModal({ onClose, onAdded }) {
-  const [form, setForm] = useState(EMPTY_FORM)
+// ─── Component ───────────────────────────────────────────────────────────────
+// Props:
+//   product  — if provided, modal opens in EDIT mode pre-filled with product data
+//   onClose  — called when modal should close
+//   onSaved  — called after successful add or edit (triggers refetch)
+
+export default function ProductFormModal({ product = null, onClose, onSaved }) {
+  const isEditing = Boolean(product)
+
+  const [form, setForm] = useState(isEditing ? productToForm(product) : EMPTY_FORM)
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -81,32 +123,18 @@ export default function AddProductModal({ onClose, onAdded }) {
 
     setSaving(true)
     try {
-          console.log('Attempting Firestore write...')  // 👈 add this
-      const id = slugify(form.brand, form.name)
-      const product = {
-        id,
-        brand: form.brand,
-        name: form.name.trim(),
-        category: form.category,
-        arch: form.arch,
-        terrain: form.terrain,
-        drop: form.drop.trim(),
-        weight: form.weight.trim(),
-        price: Number(form.price),
-        originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
-        tag: form.tag || null,
-        emoji: form.emoji,
-        description: form.description.trim(),
-        features: form.features.split('\n').map(f => f.trim()).filter(Boolean),
-        stock: Number(form.stock),
-        status: Number(form.stock) === 0 ? 'Out of Stock' : Number(form.stock) <= 5 ? 'Low Stock' : 'Active',
+      const payload = buildProductPayload(form, isEditing ? product.id : null)
+
+      if (isEditing) {
+        await updateProduct(product.id, payload)
+      } else {
+        await addProduct(payload)
       }
-      await addProduct(product)  // instead of await setDoc(doc(db, 'products', id), product)
+
       setSaved(true)
-      setTimeout(() => { onAdded?.(); onClose() }, 1200)
+      setTimeout(() => { onSaved?.(); onClose() }, 1200)
     } catch (err) {
-          console.error('Firestore error:', err)         // 👈 make sure this exists
-      console.error(err)
+      console.error('Failed to save product:', err)
       setSaving(false)
     }
   }
@@ -122,8 +150,12 @@ export default function AddProductModal({ onClose, onAdded }) {
         {/* Header */}
         <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <div>
-            <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 28, letterSpacing: 2 }}>ADD NEW PRODUCT</h2>
-            <p style={{ fontSize: 12, color: 'var(--mid)', marginTop: 2 }}>Fill in the details below to add to your catalogue</p>
+            <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 28, letterSpacing: 2 }}>
+              {isEditing ? 'EDIT PRODUCT' : 'ADD NEW PRODUCT'}
+            </h2>
+            <p style={{ fontSize: 12, color: 'var(--mid)', marginTop: 2 }}>
+              {isEditing ? `Editing ${product.brand} ${product.name}` : 'Fill in the details below to add to your catalogue'}
+            </p>
           </div>
           <button onClick={onClose} style={{ width: 36, height: 36, border: '1px solid var(--border)', borderRadius: 8, background: 'var(--grey)', cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
@@ -131,16 +163,14 @@ export default function AddProductModal({ onClose, onAdded }) {
         {/* Body */}
         <div style={{ overflowY: 'auto', padding: '28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-          {/* Row: Brand + Name */}
+          {/* Brand + Name */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
               <label style={labelStyle}>Brand *</label>
-              <div style={{ position: 'relative' }}>
-                <select value={form.brand} onChange={e => set('brand', e.target.value)} style={selectStyle(errors.brand)}>
-                  <option value="">Select brand</option>
-                  {BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
-                </select>
-              </div>
+              <select value={form.brand} onChange={e => set('brand', e.target.value)} style={selectStyle(errors.brand)}>
+                <option value="">Select brand</option>
+                {BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
               {errors.brand && <p style={errorStyle}>{errors.brand}</p>}
             </div>
             <div>
@@ -150,7 +180,7 @@ export default function AddProductModal({ onClose, onAdded }) {
             </div>
           </div>
 
-          {/* Row: Category + Arch */}
+          {/* Category + Arch */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
               <label style={labelStyle}>Category *</label>
@@ -170,7 +200,7 @@ export default function AddProductModal({ onClose, onAdded }) {
             </div>
           </div>
 
-          {/* Row: Terrain + Tag */}
+          {/* Terrain + Tag */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
               <label style={labelStyle}>Terrain *</label>
@@ -188,7 +218,7 @@ export default function AddProductModal({ onClose, onAdded }) {
             </div>
           </div>
 
-          {/* Row: Drop + Weight + Emoji */}
+          {/* Drop + Weight + Emoji */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
             <div>
               <label style={labelStyle}>Heel Drop *</label>
@@ -208,7 +238,7 @@ export default function AddProductModal({ onClose, onAdded }) {
             </div>
           </div>
 
-          {/* Row: Price + Original Price + Stock */}
+          {/* Price + Original Price + Stock */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
             <div>
               <label style={labelStyle}>Price (R) *</label>
@@ -244,8 +274,8 @@ export default function AddProductModal({ onClose, onAdded }) {
             {errors.features && <p style={errorStyle}>{errors.features}</p>}
           </div>
 
-          {/* Preview of generated ID */}
-          {form.brand && form.name && (
+          {/* Document ID preview — only show when adding */}
+          {!isEditing && form.brand && form.name && (
             <div style={{ background: 'var(--grey)', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 10, color: 'var(--mid)', fontFamily: 'DM Mono', textTransform: 'uppercase', letterSpacing: 1 }}>Document ID:</span>
               <span style={{ fontSize: 12, fontFamily: 'DM Mono', fontWeight: 600 }}>{slugify(form.brand, form.name)}</span>
@@ -259,8 +289,11 @@ export default function AddProductModal({ onClose, onAdded }) {
             Cancel
           </button>
           <button onClick={handleSubmit} disabled={saving}
-            style={{ padding: '11px 28px', background: saved ? '#16a34a' : saving ? 'var(--mid)' : 'var(--black)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans', transition: 'all 0.2s', minWidth: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-            {saved ? '✓ Product Added!' : saving ? 'Saving...' : '+ Add Product'}
+            style={{ padding: '11px 28px', background: saved ? '#16a34a' : saving ? 'var(--mid)' : 'var(--black)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans', transition: 'all 0.2s', minWidth: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            {saved
+              ? `✓ ${isEditing ? 'Changes Saved!' : 'Product Added!'}`
+              : saving ? 'Saving...'
+              : isEditing ? 'Save Changes' : '+ Add Product'}
           </button>
         </div>
       </div>

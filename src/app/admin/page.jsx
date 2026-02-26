@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { fmt } from '@/lib/validation'
 import { useProducts } from '@/app/hooks/useProducts'
-import AddProductModal from '@/components/AddProductModal'
+import ProductFormModal from '@/components/ProductFormModal'
 import { deleteProduct } from '@/services/productServices'
 const STATS = [
   { label: 'Total Revenue', value: 'R284,320', change: '+12.4%', up: true, icon: '💰' },
@@ -36,6 +36,7 @@ export default function AdminPage() {
   const [activeReport, setActiveReport] = useState('Financial')
   const [searchQ, setSearchQ] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingProduct, setEditingProduct] = useState(null)
 
   const NAV = [
     { id: 'dashboard', icon: '📊', label: 'Dashboard' },
@@ -44,11 +45,11 @@ export default function AdminPage() {
     { id: 'reports', icon: '📈', label: 'Reports' },
   ]
 
- const handleDelete = async (id) => {
-  if (!confirm('Are you sure?')) return
-  try { await deleteProduct(id); refetch() }
-  catch (err) { console.error(err) }
-}
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure?')) return
+    try { await deleteProduct(id); refetch() }
+    catch (err) { console.error(err) }
+  }
 
   const filteredOrders = RECENT_ORDERS.filter(o =>
     !searchQ || [o.id, o.customer, o.item, o.status].some(v => v.toLowerCase().includes(searchQ.toLowerCase()))
@@ -58,10 +59,11 @@ export default function AdminPage() {
     <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', minHeight: '100vh', background: 'var(--grey)' }}>
 
       {/* Add Product Modal */}
-      {showAddModal && (
-        <AddProductModal
-          onClose={() => setShowAddModal(false)}
-          onAdded={() => { refetch?.(); setShowAddModal(false) }}
+      {(showAddModal || editingProduct) && (
+        <ProductFormModal
+          product={editingProduct}
+          onClose={() => { setShowAddModal(false); setEditingProduct(null) }}
+          onSaved={() => { refetch(); setShowAddModal(false); setEditingProduct(null) }}
         />
       )}
 
@@ -190,12 +192,15 @@ export default function AdminPage() {
                             </td>
                             <td style={{ padding: '16px 20px' }}>
                               <div style={{ display: 'flex', gap: 8 }}>
-                                <button style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid var(--border)', borderRadius: 8, background: 'white', cursor: 'pointer' }}>Edit</button>
                                 <button
+                                  onClick={() => setEditingProduct(p)}
+                                  style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid var(--border)', borderRadius: 8, background: 'white', cursor: 'pointer' }}>
+                                  Edit
+                                </button>                                <button
                                   onClick={() => handleDelete(p.id)}
                                   style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid #fee2e2', borderRadius: 8, background: '#fee2e2', color: 'var(--red)', cursor: 'pointer' }}>
                                   Delete
-                                </button>                              
+                                </button>
                               </div>
                             </td>
                           </tr>
