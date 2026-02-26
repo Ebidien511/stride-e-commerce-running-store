@@ -37,6 +37,13 @@ export default function AdminPage() {
   const [searchQ, setSearchQ] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
+  const [productSearchQ, setProductSearchQ] = useState('')
+
+  const filteredProducts = PRODUCTS_DATA.filter(p =>
+    !productSearchQ || [p.name, p.brand, p.category, p.status].some(v =>
+      v?.toLowerCase().includes(productSearchQ.toLowerCase())
+    )
+  )
 
   const NAV = [
     { id: 'dashboard', icon: '📊', label: 'Dashboard' },
@@ -162,6 +169,15 @@ export default function AdminPage() {
                     </button>
                   </div>
 
+                  <div style={{ marginBottom: 20 }}>
+                    <input
+                      value={productSearchQ}
+                      onChange={e => setProductSearchQ(e.target.value)}
+                      placeholder="Search by name, brand, category or status..."
+                      style={{ width: '100%', border: '1.5px solid var(--border)', borderRadius: 10, padding: '12px 16px', fontSize: 14, fontFamily: 'DM Sans', outline: 'none', background: 'white' }}
+                    />
+                  </div>
+
                   <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead>
@@ -172,39 +188,41 @@ export default function AdminPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {PRODUCTS_DATA.map(p => (
-                          <tr key={p.id} style={{ borderTop: '1px solid var(--border)' }}>
-                            <td style={{ padding: '16px 20px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                <div style={{ width: 48, height: 48, background: 'var(--grey)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{p.emoji}</div>
-                                <div>
-                                  <div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div>
-                                  <div style={{ fontSize: 11, color: 'var(--mid)' }}>{p.brand}</div>
+                        {filteredProducts.length === 0
+                          ? <tr><td colSpan={5} style={{ padding: 48, textAlign: 'center', color: 'var(--mid)', fontSize: 14 }}>No products match your search.</td></tr>
+                          : filteredProducts.map(p => (
+                            <tr key={p.id} style={{ borderTop: '1px solid var(--border)' }}>
+                              <td style={{ padding: '16px 20px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                  <div style={{ width: 48, height: 48, background: 'var(--grey)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{p.emoji}</div>
+                                  <div>
+                                    <div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div>
+                                    <div style={{ fontSize: 11, color: 'var(--mid)' }}>{p.brand}</div>
+                                  </div>
                                 </div>
-                              </div>
-                            </td>
-                            <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>{fmt(p.price)}</td>
-                            <td style={{ padding: '16px 20px', fontSize: 13, fontWeight: 600, color: p.stock === 0 ? 'var(--red)' : p.stock <= 5 ? 'var(--yellow)' : 'var(--black)' }}>
-                              {p.stock === 0 ? 'Out of Stock' : `${p.stock} pairs`}
-                            </td>
-                            <td style={{ padding: '16px 20px' }}>
-                              <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, ...(STATUS_COLORS[p.status] || { bg: 'var(--grey)', color: 'var(--mid)' }) }}>{p.status}</span>
-                            </td>
-                            <td style={{ padding: '16px 20px' }}>
-                              <div style={{ display: 'flex', gap: 8 }}>
-                                <button
-                                  onClick={() => setEditingProduct(p)}
-                                  style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid var(--border)', borderRadius: 8, background: 'white', cursor: 'pointer' }}>
-                                  Edit
-                                </button>                                <button
-                                  onClick={() => handleDelete(p.id)}
-                                  style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid #fee2e2', borderRadius: 8, background: '#fee2e2', color: 'var(--red)', cursor: 'pointer' }}>
-                                  Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
+                              </td>
+                              <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>{fmt(p.price)}</td>
+                              <td style={{ padding: '16px 20px', fontSize: 13, fontWeight: 600, color: p.stock === 0 ? 'var(--red)' : p.stock <= 5 ? 'var(--yellow)' : 'var(--black)' }}>
+                                {p.stock === 0 ? 'Out of Stock' : `${p.stock} pairs`}
+                              </td>
+                              <td style={{ padding: '16px 20px' }}>
+                                <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, ...(STATUS_COLORS[p.status] || { bg: 'var(--grey)', color: 'var(--mid)' }) }}>{p.status}</span>
+                              </td>
+                              <td style={{ padding: '16px 20px' }}>
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                  <button
+                                    onClick={() => setEditingProduct(p)}
+                                    style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid var(--border)', borderRadius: 8, background: 'white', cursor: 'pointer' }}>
+                                    Edit
+                                  </button>                                <button
+                                    onClick={() => handleDelete(p.id)}
+                                    style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid #fee2e2', borderRadius: 8, background: '#fee2e2', color: 'var(--red)', cursor: 'pointer' }}>
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
