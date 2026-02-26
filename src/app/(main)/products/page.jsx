@@ -2,13 +2,15 @@
 import { useState, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ProductCard from '@/components/ProductCard'
-import { PRODUCTS } from '@/lib/products'
+import { useProducts } from '@/services/useProducts'
+
 
 const PILLS = ['All','Road','Trail','Track','Gym']
 const ARCH_TYPES = ['Neutral','Stability','Motion Control']
 const BRANDS = ['Nike','ASICS','Brooks','Hoka','Adidas','New Balance','On Running','Saucony']
 
 function ProductsContent() {
+    const { products, loading, error } = useProducts()  // 👈 add this
   const searchParams = useSearchParams()
   const q = searchParams.get('q') || ''
 
@@ -24,7 +26,7 @@ function ProductsContent() {
   const clearAll = () => { setActivePill('All'); setCheckedArch([]); setCheckedBrand([]); setPriceMin(''); setPriceMax('') }
 
   const filtered = useMemo(() => {
-    return PRODUCTS
+    return products
       .filter(p => {
         if (activePill !== 'All' && p.category !== activePill.toLowerCase()) return false
         if (checkedArch.length  && !checkedArch.includes(p.arch))   return false
@@ -35,7 +37,7 @@ function ProductsContent() {
         return true
       })
       .sort((a,b) => sort==='price-asc'?a.price-b.price:sort==='price-desc'?b.price-a.price:0)
-  }, [activePill, checkedArch, checkedBrand, priceMin, priceMax, sort, q])
+  }, [products,activePill, checkedArch, checkedBrand, priceMin, priceMax, sort, q])
 
   const CheckBox = ({checked, onClick}) => (
     <div onClick={onClick} style={{width:16,height:16,border:`2px solid ${checked?'var(--black)':'var(--border)'}`,borderRadius:4,background:checked?'var(--black)':'white',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:'white',fontWeight:700}}>
