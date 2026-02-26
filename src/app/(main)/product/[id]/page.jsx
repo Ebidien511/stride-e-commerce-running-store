@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
 import { fmt } from '@/lib/validation'
 import ProductCard from '@/components/ProductCard'
-import {useProduct,useProducts} from '@/services/useProducts'
+import {useProduct,useProducts} from '@/app/hooks/useProducts'
 
 const SIZES = ['5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
 const SOLD_OUT = ['5','11']

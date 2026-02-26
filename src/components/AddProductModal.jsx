@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { collection, doc, setDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { addProduct } from '@/services/productServices'
 const BRANDS = ['Nike', 'ASICS', 'Brooks', 'Hoka', 'Adidas', 'New Balance', 'On Running', 'Saucony', 'Puma', 'New Era']
 const CATEGORIES = ['road', 'trail', 'track', 'gym']
 const ARCH_TYPES = ['Neutral', 'Stability', 'Motion Control']
@@ -102,7 +101,7 @@ export default function AddProductModal({ onClose, onAdded }) {
         stock: Number(form.stock),
         status: Number(form.stock) === 0 ? 'Out of Stock' : Number(form.stock) <= 5 ? 'Low Stock' : 'Active',
       }
-      await setDoc(doc(db, 'products', id), product)
+      await addProduct(product)  // instead of await setDoc(doc(db, 'products', id), product)
       setSaved(true)
       setTimeout(() => { onAdded?.(); onClose() }, 1200)
     } catch (err) {

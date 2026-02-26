@@ -1,9 +1,9 @@
 'use client'
 import { useState } from 'react'
 import { fmt } from '@/lib/validation'
-import { useProducts } from '@/services/useProducts'
+import { useProducts } from '@/app/hooks/useProducts'
 import AddProductModal from '@/components/AddProductModal'
-
+import { deleteProduct } from '@/services/productServices'
 const STATS = [
   { label: 'Total Revenue', value: 'R284,320', change: '+12.4%', up: true, icon: '💰' },
   { label: 'Orders Today', value: '47', change: '+8.1%', up: true, icon: '📦' },
@@ -43,6 +43,12 @@ export default function AdminPage() {
     { id: 'orders', icon: '📦', label: 'Orders' },
     { id: 'reports', icon: '📈', label: 'Reports' },
   ]
+
+ const handleDelete = async (id) => {
+  if (!confirm('Are you sure?')) return
+  try { await deleteProduct(id); refetch() }
+  catch (err) { console.error(err) }
+}
 
   const filteredOrders = RECENT_ORDERS.filter(o =>
     !searchQ || [o.id, o.customer, o.item, o.status].some(v => v.toLowerCase().includes(searchQ.toLowerCase()))
@@ -185,7 +191,11 @@ export default function AdminPage() {
                             <td style={{ padding: '16px 20px' }}>
                               <div style={{ display: 'flex', gap: 8 }}>
                                 <button style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid var(--border)', borderRadius: 8, background: 'white', cursor: 'pointer' }}>Edit</button>
-                                <button style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid #fee2e2', borderRadius: 8, background: '#fee2e2', color: 'var(--red)', cursor: 'pointer' }}>Delete</button>
+                                <button
+                                  onClick={() => handleDelete(p.id)}
+                                  style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid #fee2e2', borderRadius: 8, background: '#fee2e2', color: 'var(--red)', cursor: 'pointer' }}>
+                                  Delete
+                                </button>                              
                               </div>
                             </td>
                           </tr>
