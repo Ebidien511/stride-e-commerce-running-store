@@ -1,6 +1,8 @@
+
+'use client'
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
-import { PRODUCTS } from '@/lib/products'
+import { useProducts } from '@/services/useProducts'
 
 const S = {
   hero: { minHeight:'calc(90vh - 64px)',display:'grid',gridTemplateColumns:'1fr 1fr',overflow:'hidden' },
@@ -18,8 +20,10 @@ const S = {
 }
 
 export default function HomePage() {
-  const topSellers = PRODUCTS.slice(0,4)
-  const newArrivals = PRODUCTS.slice(4,8)
+    const { products, loading } = useProducts()
+
+  const topSellers = products.slice(0,4)
+  const newArrivals = products.slice(4,8)
 
   return (
     <>
