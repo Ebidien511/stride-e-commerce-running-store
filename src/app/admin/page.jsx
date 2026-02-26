@@ -2,7 +2,8 @@
 import { useState } from 'react'
 import { fmt } from '@/lib/validation'
 import { useProducts } from '@/services/useProducts'
-import { addProductToFirestore } from '@/services/test'
+import AddProductModal from '@/components/AddProductModal'
+
 const STATS = [
   { label: 'Total Revenue', value: 'R284,320', change: '+12.4%', up: true, icon: '💰' },
   { label: 'Orders Today', value: '47', change: '+8.1%', up: true, icon: '📦' },
@@ -18,7 +19,6 @@ const RECENT_ORDERS = [
   { id: 'STR-Q9R3T1', customer: 'Tom Distance', item: 'Adidas Ultraboost 23', amount: 'R2,999', status: 'Delivered', date: '10 Feb' },
 ]
 
-
 const STATUS_COLORS = {
   Delivered: { bg: '#dcfce7', color: '#166534' },
   Shipped: { bg: '#dbeafe', color: '#1e40af' },
@@ -31,10 +31,11 @@ const STATUS_COLORS = {
 const REPORT_TABS = ['Financial', 'Top Products', 'Customers']
 
 export default function AdminPage() {
-  const { products: PRODUCTS_DATA, loading } = useProducts()
+  const { products: PRODUCTS_DATA, loading, refetch } = useProducts()
   const [activePanel, setActivePanel] = useState('dashboard')
   const [activeReport, setActiveReport] = useState('Financial')
   const [searchQ, setSearchQ] = useState('')
+  const [showAddModal, setShowAddModal] = useState(false)
 
   const NAV = [
     { id: 'dashboard', icon: '📊', label: 'Dashboard' },
@@ -49,6 +50,15 @@ export default function AdminPage() {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', minHeight: '100vh', background: 'var(--grey)' }}>
+
+      {/* Add Product Modal */}
+      {showAddModal && (
+        <AddProductModal
+          onClose={() => setShowAddModal(false)}
+          onAdded={() => { refetch?.(); setShowAddModal(false) }}
+        />
+      )}
+
       {/* Sidebar */}
       <aside style={{ background: 'var(--black)', display: 'flex', flexDirection: 'column', padding: '24px 0', position: 'sticky', top: 0, height: '100vh' }}>
         <div style={{ padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 16 }}>
@@ -78,8 +88,6 @@ export default function AdminPage() {
               <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 2 }}>DASHBOARD</h1>
               <p style={{ color: 'var(--mid)', fontSize: 13 }}>Welcome back. Here's what's happening today.</p>
             </div>
-
-            {/* Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
               {STATS.map(s => (
                 <div key={s.label} style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--border)' }}>
@@ -92,8 +100,6 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
-
-            {/* Recent Orders */}
             <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 24 }}>
               <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 22, letterSpacing: 1 }}>RECENT ORDERS</h2>
@@ -139,10 +145,10 @@ export default function AdminPage() {
                       <p style={{ color: 'var(--mid)', fontSize: 13 }}>{PRODUCTS_DATA.length} products total</p>
                     </div>
                     <button
+                      onClick={() => setShowAddModal(true)}
                       style={{ padding: '12px 24px', background: 'var(--black)', color: 'white', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'var(--black)'}
-                      onClick={() => addProductToFirestore()} // trigger the firestore helper
                     >
                       + Add Product
                     </button>
@@ -159,7 +165,7 @@ export default function AdminPage() {
                       </thead>
                       <tbody>
                         {PRODUCTS_DATA.map(p => (
-                          <tr key={p.name} style={{ borderTop: '1px solid var(--border)' }}>
+                          <tr key={p.id} style={{ borderTop: '1px solid var(--border)' }}>
                             <td style={{ padding: '16px 20px' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                 <div style={{ width: 48, height: 48, background: 'var(--grey)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{p.emoji}</div>
@@ -187,12 +193,10 @@ export default function AdminPage() {
                       </tbody>
                     </table>
                   </div>
-                </div>)
-            }
+                </div>
+              )}
           </div>
         )}
-
-
 
         {/* ── ORDERS ── */}
         {activePanel === 'orders' && (
@@ -201,16 +205,11 @@ export default function AdminPage() {
               <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 2 }}>ORDERS</h1>
               <p style={{ color: 'var(--mid)', fontSize: 13 }}>{RECENT_ORDERS.length} total orders</p>
             </div>
-
             <div style={{ marginBottom: 20 }}>
-              <input
-                value={searchQ}
-                onChange={e => setSearchQ(e.target.value)}
+              <input value={searchQ} onChange={e => setSearchQ(e.target.value)}
                 placeholder="Search by order ID, customer, item or status..."
-                style={{ width: '100%', border: '1.5px solid var(--border)', borderRadius: 10, padding: '12px 16px', fontSize: 14, fontFamily: 'DM Sans', outline: 'none', background: 'white' }}
-              />
+                style={{ width: '100%', border: '1.5px solid var(--border)', borderRadius: 10, padding: '12px 16px', fontSize: 14, fontFamily: 'DM Sans', outline: 'none', background: 'white' }} />
             </div>
-
             <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
@@ -237,8 +236,7 @@ export default function AdminPage() {
                           <button style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, border: '1px solid var(--border)', borderRadius: 8, background: 'white', cursor: 'pointer' }}>View</button>
                         </td>
                       </tr>
-                    ))
-                  }
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -252,7 +250,6 @@ export default function AdminPage() {
               <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 2 }}>REPORTS</h1>
               <p style={{ color: 'var(--mid)', fontSize: 13 }}>Analytics for the last 30 days</p>
             </div>
-
             <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', marginBottom: 32, gap: 4 }}>
               {REPORT_TABS.map(tab => (
                 <button key={tab} onClick={() => setActiveReport(tab)}
@@ -261,7 +258,6 @@ export default function AdminPage() {
                 </button>
               ))}
             </div>
-
             {activeReport === 'Financial' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
@@ -286,7 +282,6 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
-
             {activeReport === 'Top Products' && (
               <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -299,7 +294,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {PRODUCTS_DATA.map((p, i) => (
-                      <tr key={p.name} style={{ borderTop: '1px solid var(--border)' }}>
+                      <tr key={p.id} style={{ borderTop: '1px solid var(--border)' }}>
                         <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 20, color: 'var(--mid)' }}>{i + 1}</td>
                         <td style={{ padding: '16px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -307,16 +302,15 @@ export default function AdminPage() {
                             <div><div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div><div style={{ fontSize: 11, color: 'var(--mid)' }}>{p.brand}</div></div>
                           </div>
                         </td>
-                        <td style={{ padding: '16px 20px', fontSize: 14, fontWeight: 600 }}>{[142, 98, 76, 61, 43][i]}</td>
-                        <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>{fmt([142, 98, 76, 61, 43][i] * p.price)}</td>
-                        <td style={{ padding: '16px 20px', fontSize: 13, color: i < 3 ? 'var(--green)' : 'var(--red)', fontWeight: 700 }}>{i < 3 ? '↑ +' : '↓ -'}{[18, 12, 8, 3, 5][i]}%</td>
+                        <td style={{ padding: '16px 20px', fontSize: 14, fontWeight: 600 }}>{[142, 98, 76, 61, 43][i] ?? '—'}</td>
+                        <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>{fmt(([142, 98, 76, 61, 43][i] ?? 0) * p.price)}</td>
+                        <td style={{ padding: '16px 20px', fontSize: 13, color: i < 3 ? 'var(--green)' : 'var(--red)', fontWeight: 700 }}>{i < 3 ? '↑ +' : '↓ -'}{[18, 12, 8, 3, 5][i] ?? 0}%</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             )}
-
             {activeReport === 'Customers' && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
                 {[['Total Customers', '1,284', '+3.2%', true], ['New This Month', '156', '+18.4%', true], ['Repeat Buyers', '68%', '+2.1%', true], ['Avg Lifetime Value', 'R4,820', '+6.3%', true], ['Churn Rate', '2.4%', '-0.8%', true], ['NPS Score', '72', '+4pts', true]].map(([l, v, c, up]) => (

@@ -7,27 +7,22 @@ import { db } from '@/lib/firebase'
 export function useProducts() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const snapshot = await getDocs(collection(db, 'products'))
-        const data = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-        setProducts(data)
-      } catch (err) {
-        setError(err)
-      } finally {
-        setLoading(false)
-      }
+  const fetchProducts = async () => {
+    setLoading(true)
+    try {
+      const snapshot = await getDocs(collection(db, 'products'))
+      setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })))
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
     }
-    fetchProducts()
-  }, [])
+  }
 
-  return { products, loading, error }
+  useEffect(() => { fetchProducts() }, [])
+
+  return { products, loading, refetch: fetchProducts }
 }
 
 export function useProduct(id) {
@@ -49,3 +44,4 @@ export function useProduct(id) {
 
   return { product, loading }
 }
+
