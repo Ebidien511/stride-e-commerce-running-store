@@ -7,9 +7,9 @@ import { collection, addDoc } from "firebase/firestore";
 export async function addProductToFirestore() {
   try {
     const productData = {
-      brand: "Nike",
-      name: "Vomero 90",
-      price: 2799,
+      brand: "Adidas",
+      name: "Super fast 90",
+      price: 9000,
       // We use a conditional check here: if it's null, we omit it
       ...(null && { originalPrice: null }), 
       tag: "New",
@@ -18,7 +18,7 @@ export async function addProductToFirestore() {
       terrain: "Road",
       drop: "10mm",
       weight: "290g",
-      emoji: "👟",
+      emoji: "🦍",
       description: "A premium daily trainer that provides a springy, soft ride for every mile.",
       features: [
         "Dual-density foam midsole",

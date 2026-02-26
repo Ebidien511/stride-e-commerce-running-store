@@ -2,10 +2,9 @@
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
-import { getProductById } from '@/lib/products'
 import { fmt } from '@/lib/validation'
-import { PRODUCTS } from '@/lib/products'
 import ProductCard from '@/components/ProductCard'
+import {useProduct,useProducts} from '@/services/useProducts'
 
 const SIZES = ['5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
 const SOLD_OUT = ['5','11']
@@ -13,7 +12,8 @@ const TABS = ['Description','Full Specs','🤖 AI Summary']
 
 export default function ProductDetailPage() {
   const { id } = useParams()
-  const product = getProductById(id)
+  const { product, loading } = useProduct(id)           // 👈 replaces getProductById
+    const { products } = useProducts()                     // 👈 replaces PRODUCTS
   const { addItem, openCart } = useCart()
   const router = useRouter()
 
@@ -22,6 +22,14 @@ export default function ProductDetailPage() {
   const [wished, setWished] = useState(false)
   const [activeTab, setActiveTab] = useState('Description')
   const [sizeError, setSizeError] = useState(false)
+
+  const related = products.filter(p => p.id !== id).slice(0, 4)  // 👈 replaces PRODUCTS.filter
+
+  if (loading) return (
+    <div style={{padding:'80px 48px',textAlign:'center'}}>
+      <p style={{color:'var(--mid)'}}>Loading product...</p>
+    </div>
+  )
 
   if (!product) return (
     <div style={{padding:'80px 48px',textAlign:'center'}}>
@@ -35,8 +43,6 @@ export default function ProductDetailPage() {
     addItem({ ...product, size: `UK ${selectedSize}`, meta: product.arch })
     openCart()
   }
-
-  const related = PRODUCTS.filter(p=>p.id!==product.id).slice(0,4)
 
   return (
     <div style={{marginTop:'var(--nav-h)',padding:'40px 48px 80px',maxWidth:1400,margin:'var(--nav-h) auto 0'}}>
