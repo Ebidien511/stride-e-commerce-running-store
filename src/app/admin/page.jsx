@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { fmt } from '@/lib/validation'
 import { useProducts } from '@/services/useProducts'
-
+import { addProductToFirestore } from '@/services/test'
 const STATS = [
   { label: 'Total Revenue', value: 'R284,320', change: '+12.4%', up: true, icon: '💰' },
   { label: 'Orders Today', value: '47', change: '+8.1%', up: true, icon: '📦' },
@@ -138,10 +138,14 @@ export default function AdminPage() {
                       <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 2 }}>PRODUCTS</h1>
                       <p style={{ color: 'var(--mid)', fontSize: 13 }}>{PRODUCTS_DATA.length} products total</p>
                     </div>
-                    <button style={{ padding: '12px 24px', background: 'var(--black)', color: 'white', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
+                    <button
+                      style={{ padding: '12px 24px', background: 'var(--black)', color: 'white', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'var(--black)'}
-                    >+ Add Product</button>
+                      onClick={() => addProductToFirestore()} // trigger the firestore helper
+                    >
+                      + Add Product
+                    </button>
                   </div>
 
                   <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden' }}>
