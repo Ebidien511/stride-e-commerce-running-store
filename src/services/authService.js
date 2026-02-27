@@ -21,6 +21,9 @@ const createUserDoc = async (user, extraData = {}) => {
       email: user.email,
       role: 'customer',
       createdAt: new Date().toISOString(),
+      phone: '',
+      address: { street: '', city: '', province: 'Western Cape', postal: '' },
+      runProfile: { arch: 'Neutral', terrain: 'Road', size: 'UK 8' },
       ...extraData,
     })
   }
