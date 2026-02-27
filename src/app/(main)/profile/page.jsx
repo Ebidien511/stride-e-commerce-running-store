@@ -2,13 +2,8 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { getUserData, updateUserData, changePassword } from '@/services/userService'
+import { getUserOrders } from '@/services/orderService'
 import ProtectedRoute from '@/components/ProtectedRoute'
-
-const ORDERS = [
-  { id: 'STR-A7X2B1', date: '12 Feb 2026', status: 'Delivered', items: 'Nike Pegasus 40 (UK 8)', total: 'R1,899' },
-  { id: 'STR-C3K9P2', date: '28 Jan 2026', status: 'Shipped', items: 'Hoka Clifton 9 (UK 7.5) × 2', total: 'R4,598' },
-  { id: 'STR-M5R8Q4', date: '4 Jan 2026', status: 'Processing', items: 'ASICS Gel-Kayano 30 (UK 9)', total: 'R2,499' },
-]
 
 const WISHLIST = [
   { emoji: '👟', brand: 'Brooks', name: 'Ghost 15', price: 'R1,399', originalPrice: 'R1,699', tag: 'Sale' },
@@ -40,6 +35,8 @@ export default function ProfilePage() {
   const { user } = useAuth()        // 👈 must be here
   const [loading, setLoading] = useState(true)  // 👈 add this
   const [activeTab, setActiveTab] = useState('orders')
+  const [orders, setOrders] = useState([])
+
 
   // Personal info
   const [info, setInfo] = useState({ firstName: '', lastName: '', email: '', phone: '' })
@@ -65,28 +62,38 @@ export default function ProfilePage() {
   // fetch user data from Firestore on mount
   useEffect(() => {
     if (!user) return
-    getUserData(user.uid).then(data => {
-      if (data) {
-        setInfo({
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          email: data.email || user.email || '',
-          phone: data.phone || '',
-        })
-        setAddr({
-          street: data.address?.street || '',
-          city: data.address?.city || '',
-          province: data.address?.province || 'Western Cape',
-          postal: data.address?.postal || '',
-        })
-        setRunProfile({
-          arch: data.runProfile?.arch || 'Neutral',
-          terrain: data.runProfile?.terrain || 'Road',
-          size: data.runProfile?.size || 'UK 8',
-        })
+    const fetchData = async () => {
+      try {
+        const data = await getUserData(user.uid)
+        if (data) {
+          setInfo({
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
+            email: data.email || user.email || '',
+            phone: data.phone || '',
+          })
+          setAddr({
+            street: data.address?.street || '',
+            city: data.address?.city || '',
+            province: data.address?.province || 'Western Cape',
+            postal: data.address?.postal || '',
+          })
+          setRunProfile({
+            arch: data.runProfile?.arch || 'Neutral',
+            terrain: data.runProfile?.terrain || 'Road',
+            size: data.runProfile?.size || 'UK 8',
+          })
+        }
+        const userOrders = await getUserOrders(user.uid)
+        console.log('Orders fetched:', userOrders)
+        setOrders(userOrders)
+      } catch (err) {
+        console.error('Failed to load profile:', err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
-    })
+    }
+    fetchData()
   }, [user])
 
   const setI = (k, v) => { setInfo(p => ({ ...p, [k]: v })); setInfoErr(p => ({ ...p, [k]: '' })); setInfoSaved(false) }
@@ -187,24 +194,38 @@ export default function ProfilePage() {
             {activeTab === 'orders' && (
               <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
                 <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
-                  <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 24, letterSpacing: 1 }}>MY ORDERS</h2>
+                  <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 24, letterSpacing: 1 }}>MY ORDERS ({orders.length})</h2>
                 </div>
-                {ORDERS.map(order => (
-                  <div key={order.id} style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: 16 }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-                        <span style={{ fontFamily: 'DM Mono', fontSize: 12, fontWeight: 700 }}>{order.id}</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, ...STATUS_COLORS[order.status] }}>{order.status}</span>
-                      </div>
-                      <div style={{ fontSize: 13, marginBottom: 4 }}>{order.items}</div>
-                      <div style={{ fontSize: 12, color: 'var(--mid)' }}>{order.date}</div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontFamily: 'Bebas Neue', fontSize: 22, letterSpacing: 1, marginBottom: 8 }}>{order.total}</div>
-                      <button style={{ fontSize: 12, fontWeight: 600, background: 'none', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer' }}>View Order</button>
-                    </div>
+                {orders.length === 0
+                  ? <div style={{ padding: 48, textAlign: 'center', color: 'var(--mid)', fontSize: 14 }}>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}>📦</div>
+                    You haven't placed any orders yet.
                   </div>
-                ))}
+                  : orders.map(order => (
+                    <div key={order.id} style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: 16 }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
+                          <span style={{ fontFamily: 'DM Mono', fontSize: 12, fontWeight: 700 }}>{order.id}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, ...STATUS_COLORS[order.status] }}>{order.status}</span>
+                        </div>
+                        <div style={{ fontSize: 13, marginBottom: 4 }}>
+                          {order.items.map(i => `${i.brand} ${i.name} (${i.size})`).join(', ')}
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--mid)' }}>
+                          {new Date(order.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontFamily: 'Bebas Neue', fontSize: 22, letterSpacing: 1, marginBottom: 8 }}>
+                          R{order.total.toLocaleString('en-ZA')}
+                        </div>
+                        <button style={{ fontSize: 12, fontWeight: 600, background: 'none', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer' }}>
+                          View Order
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                }
               </div>
             )}
 

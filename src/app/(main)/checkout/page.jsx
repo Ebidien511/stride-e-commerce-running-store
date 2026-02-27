@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { useCart } from '@/context/CartContext'
+import { useAuth } from '@/context/AuthContext'
+import { placeOrder as placeOrderService } from '@/services/orderService'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
 const STEPS = ['Cart', 'Details', 'Payment', 'Confirm']
@@ -46,6 +48,7 @@ function Input({ error, ...props }) {
 }
 
 export default function CheckoutPage() {
+  const { user } = useAuth()
   const { items, subtotal, delivery, total, fmt, clearCart } = useCart()
   const [step, setStep] = useState(2)
 
@@ -90,13 +93,25 @@ export default function CheckoutPage() {
   }
 
   const goToPayment = () => { if (validateDetails()) setStep(3) }
-  const placeOrder  = () => {
-    if (!validateCard()) return
-    const num = 'STR-' + Math.random().toString(36).substring(2,8).toUpperCase()
-    setOrderNum(num)
+const placeOrder = async () => {
+  if (!validateCard()) return
+  try {
+    const orderId = await placeOrderService({
+      uid: user.uid,
+      items,
+      details,
+      payMethod,
+      subtotal,
+      delivery,
+      total,
+    })
+    setOrderNum(orderId)
     clearCart()
     setStep(4)
+  } catch (err) {
+    console.error('Order failed:', err)
   }
+}
 
   const inputStyle = (err) => ({ width:'100%', border:`1.5px solid ${err?'var(--red)':'var(--border)'}`, borderRadius:8, padding:'11px 14px', fontSize:14, fontFamily:'DM Sans', outline:'none', background:'white', color:'var(--black)', boxShadow: err ? '0 0 0 3px rgba(220,38,38,0.08)' : 'none' })
 
