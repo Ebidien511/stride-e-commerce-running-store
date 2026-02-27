@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
 import { useAuth } from '@/context/AuthContext'
+import { useWishlist } from '@/hooks/useWishlist'
 import { logOut } from '@/services/authService'
 import { useRouter } from 'next/navigation'
 
@@ -12,6 +13,8 @@ export default function Navbar({ onSearchToggle, searchOpen }) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
   const router = useRouter()
+  const { wishlist } = useWishlist()
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -65,12 +68,17 @@ export default function Navbar({ onSearchToggle, searchOpen }) {
         </button>
 
         {/* Wishlist */}
-        <button style={{ background: 'none', border: 'none', padding: 0, display: 'flex', color: 'var(--black)' }}>
+        {/* Wishlist */}
+        <Link href="/profile?tab=wishlist" style={{ background: 'none', border: 'none', padding: 0, display: 'flex', color: 'var(--black)', position: 'relative' }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
-        </button>
-
+          {wishlist.length > 0 && (
+            <span style={{ position: 'absolute', top: -6, right: -6, background: 'var(--accent)', color: 'white', width: 16, height: 16, borderRadius: '50%', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {wishlist.length}
+            </span>
+          )}
+        </Link>
         {/* Cart */}
         <button onClick={openCart} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--black)', color: 'white', border: 'none', padding: '8px 20px', borderRadius: 100, fontSize: 13, fontWeight: 500, transition: 'background 0.2s' }}
           onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}

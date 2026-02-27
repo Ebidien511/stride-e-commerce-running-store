@@ -2,7 +2,7 @@
 import { useState, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ProductCard from '@/components/ProductCard'
-import { useProducts } from '@/app/hooks/useProducts'
+import { useProducts } from '@/hooks/useProducts'
 
 
 const PILLS = ['All','Road','Trail','Track','Gym']

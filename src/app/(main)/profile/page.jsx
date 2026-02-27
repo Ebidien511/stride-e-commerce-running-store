@@ -2,14 +2,15 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { getUserData, updateUserData, changePassword } from '@/services/userService'
+import { useWishlist } from '@/hooks/useWishlist'
 import { getUserOrders } from '@/services/orderService'
+import { useCart } from '@/context/CartContext'
+import { useRouter } from 'next/navigation'
+
+import { useSearchParams } from 'next/navigation'
+
 import ProtectedRoute from '@/components/ProtectedRoute'
 
-const WISHLIST = [
-  { emoji: '👟', brand: 'Brooks', name: 'Ghost 15', price: 'R1,399', originalPrice: 'R1,699', tag: 'Sale' },
-  { emoji: '👟', brand: 'Adidas', name: 'Ultraboost 23', price: 'R2,999', tag: 'New' },
-  { emoji: '👟', brand: 'On Running', name: 'Cloudmonster 2', price: 'R3,199', tag: 'New' },
-]
 
 const STATUS_COLORS = {
   Processing: { bg: '#fef3c7', color: '#92400e' },
@@ -34,8 +35,15 @@ function SaveBtn({ onClick, saved }) {
 export default function ProfilePage() {
   const { user } = useAuth()        // 👈 must be here
   const [loading, setLoading] = useState(true)  // 👈 add this
-  const [activeTab, setActiveTab] = useState('orders')
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'orders')
   const [orders, setOrders] = useState([])
+  const { wishlist, toggleWishlist } = useWishlist()
+  const { addItem, openCart } = useCart()
+  const router = useRouter()
+
+
+
 
 
   // Personal info
@@ -233,26 +241,42 @@ export default function ProfilePage() {
             {activeTab === 'wishlist' && (
               <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
                 <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
-                  <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 24, letterSpacing: 1 }}>WISHLIST ({WISHLIST.length})</h2>
+                  <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 24, letterSpacing: 1 }}>WISHLIST ({wishlist.length})</h2>
                 </div>
-                {WISHLIST.map(item => (
-                  <div key={item.name} style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'grid', gridTemplateColumns: '72px 1fr auto', gap: 16, alignItems: 'center' }}>
-                    <div style={{ width: 72, height: 72, background: 'var(--grey)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>{item.emoji}</div>
-                    <div>
-                      <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', marginBottom: 4 }}>{item.brand}</div>
-                      <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{item.name}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>{item.price}</span>
-                        {item.originalPrice && <span style={{ fontSize: 12, color: 'var(--mid)', textDecoration: 'line-through' }}>{item.originalPrice}</span>}
-                        {item.tag && <span style={{ fontSize: 10, fontWeight: 700, background: 'var(--accent)', color: 'white', padding: '2px 8px', borderRadius: 100 }}>{item.tag}</span>}
+                {wishlist.length === 0
+                  ? <div style={{ padding: 48, textAlign: 'center', color: 'var(--mid)', fontSize: 14 }}>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}>♡</div>
+                    Your wishlist is empty. Heart a product to save it here.
+                  </div>
+                  : wishlist.map(item => (
+                    <div key={item.id} onClick={() => router.push(`/product/${item.id}`)} style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'grid', gridTemplateColumns: '72px 1fr auto', gap: 16, alignItems: 'center', cursor: 'pointer', transition: 'background 0.15s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--grey)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                    >                      <div style={{ width: 72, height: 72, background: 'var(--grey)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>{item.emoji}</div>
+                      <div>
+                        <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', marginBottom: 4 }}>{item.brand}</div>
+                        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{item.name}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>R{item.price.toLocaleString('en-ZA')}</span>
+                          {item.originalPrice && <span style={{ fontSize: 12, color: 'var(--mid)', textDecoration: 'line-through' }}>R{item.originalPrice.toLocaleString('en-ZA')}</span>}
+                          {item.tag && <span style={{ fontSize: 10, fontWeight: 700, background: 'var(--accent)', color: 'white', padding: '2px 8px', borderRadius: 100 }}>{item.tag}</span>}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); addItem({ ...item, size: 'UK 8', meta: 'Neutral', qty: 1 }); openCart() }}
+                          style={{ padding: '10px 18px', background: 'var(--black)', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                          Add to Cart
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleWishlist(item) }}
+                          style={{ padding: '10px 18px', background: 'none', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: 'var(--red)' }}>
+                          Remove
+                        </button>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      <button style={{ padding: '10px 18px', background: 'var(--black)', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Add to Cart</button>
-                      <button style={{ padding: '10px 18px', background: 'none', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: 'var(--mid)' }}>Remove</button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                }
               </div>
             )}
 

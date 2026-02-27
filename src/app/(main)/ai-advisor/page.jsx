@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { fmt } from '@/lib/validation'
-import { useProducts } from '@/app/hooks/useProducts'
+import { useProducts } from '@/hooks/useProducts'
 
 const QUESTIONS = [
   {

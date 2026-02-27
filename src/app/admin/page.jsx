@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { fmt } from '@/lib/validation'
-import { useProducts } from '@/app/hooks/useProducts'
+import { useProducts } from '@/hooks/useProducts'
 import ProductFormModal from '@/components/ProductFormModal'
 import { deleteProduct } from '@/services/productServices'
 import ProtectedRoute from '@/components/ProtectedRoute'

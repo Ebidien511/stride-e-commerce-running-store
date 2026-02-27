@@ -2,7 +2,7 @@
 'use client'
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
-import { useProducts } from '@/app/hooks/useProducts'
+import { useProducts } from '@/hooks/useProducts'
 
 const S = {
   hero: { minHeight:'calc(90vh - 64px)',display:'grid',gridTemplateColumns:'1fr 1fr',overflow:'hidden' },
