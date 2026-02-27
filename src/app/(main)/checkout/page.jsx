@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useCart } from '@/context/CartContext'
+import ProtectedRoute from '@/components/ProtectedRoute'
 
 const STEPS = ['Cart', 'Details', 'Payment', 'Confirm']
 
@@ -134,6 +135,7 @@ export default function CheckoutPage() {
   )
 
   return (
+  <ProtectedRoute requiredRole="customer">
     <div style={{padding:'40px 48px 80px',maxWidth:1200,margin:'var(--nav-h) auto 0'}}>
       <h1 style={{fontFamily:'Bebas Neue',fontSize:48,letterSpacing:2,marginBottom:8}}>CHECKOUT</h1>
       <p style={{color:'var(--mid)',fontSize:13,marginBottom:40}}>Secure checkout powered by STRIDE</p>
@@ -335,5 +337,6 @@ export default function CheckoutPage() {
         {step < 4 && <Summary />}
       </div>
     </div>
+    </ProtectedRoute>
   )
 }

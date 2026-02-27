@@ -1,9 +1,11 @@
 'use client'
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signInWithEmail, signUpWithEmail, signInWithGoogle, resetPassword } from '@/services/authService'
 import { useAuth } from '@/context/AuthContext'
+import { useState, useEffect } from 'react'
+
 import Link from 'next/link'
+
 
 function Label({ children }) {
   return <div style={{ fontFamily: 'DM Mono', fontSize: 10, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', fontWeight: 600, marginBottom: 6 }}>{children}</div>
@@ -35,6 +37,12 @@ export default function AuthPage() {
 
   // Show/hide password
   const [showPw, setShowPw] = useState({ signIn: false, signUp: false, confirm: false })
+
+  const { user, loading } = useAuth()
+
+  useEffect(() => {
+    if (!loading && user) router.replace('/')
+  }, [user, loading])
 
   const inputStyle = (err) => ({ width: '100%', border: `1.5px solid ${err ? 'var(--red)' : 'var(--border)'}`, borderRadius: 8, padding: '11px 14px', fontSize: 14, fontFamily: 'DM Sans', outline: 'none', background: 'white', color: 'var(--black)' })
 
@@ -250,7 +258,7 @@ export default function AuthPage() {
                 <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
               </div>
 
-              <button onClick={handleSignUp} style={{ width: '100%', background: 'var(--black)', color: 'white', border: 'none', padding: 15, borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer',  transition: 'all 0.2s' }}
+              <button onClick={handleSignUp} style={{ width: '100%', background: 'var(--black)', color: 'white', border: 'none', padding: 15, borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'var(--black)'}
               >Create Account →</button>

@@ -4,6 +4,9 @@ import { fmt } from '@/lib/validation'
 import { useProducts } from '@/app/hooks/useProducts'
 import ProductFormModal from '@/components/ProductFormModal'
 import { deleteProduct } from '@/services/productServices'
+import ProtectedRoute from '@/components/ProtectedRoute'
+
+
 const STATS = [
   { label: 'Total Revenue', value: 'R284,320', change: '+12.4%', up: true, icon: '💰' },
   { label: 'Orders Today', value: '47', change: '+8.1%', up: true, icon: '📦' },
@@ -63,6 +66,7 @@ export default function AdminPage() {
   )
 
   return (
+    <ProtectedRoute requiredRole="admin">
     <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', minHeight: '100vh', background: 'var(--grey)' }}>
 
       {/* Add Product Modal */}
@@ -359,5 +363,6 @@ export default function AdminPage() {
         )}
       </main>
     </div>
+    </ProtectedRoute>
   )
 }
