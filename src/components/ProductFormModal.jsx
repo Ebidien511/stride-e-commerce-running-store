@@ -227,18 +227,18 @@ export default function ProductFormModal({ product = null, onClose, onSaved }) {
           </div>
 
           {/* Drop + Weight + Emoji */}
-<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-  <div>
-    <label style={labelStyle}>Heel Drop *</label>
-    <input value={form.drop} onChange={e => set('drop', e.target.value)} placeholder="e.g. 10mm" style={inputStyle(errors.drop)} />
-    {errors.drop && <p style={errorStyle}>{errors.drop}</p>}
-  </div>
-  <div>
-    <label style={labelStyle}>Weight *</label>
-    <input value={form.weight} onChange={e => set('weight', e.target.value)} placeholder="e.g. 280g" style={inputStyle(errors.weight)} />
-    {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
-  </div>
-</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div>
+              <label style={labelStyle}>Heel Drop *</label>
+              <input value={form.drop} onChange={e => set('drop', e.target.value)} placeholder="e.g. 10mm" style={inputStyle(errors.drop)} />
+              {errors.drop && <p style={errorStyle}>{errors.drop}</p>}
+            </div>
+            <div>
+              <label style={labelStyle}>Weight *</label>
+              <input value={form.weight} onChange={e => set('weight', e.target.value)} placeholder="e.g. 280g" style={inputStyle(errors.weight)} />
+              {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
+            </div>
+          </div>
 
           {/* Price + Original Price + Stock */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16 }}>
@@ -267,45 +267,45 @@ export default function ProductFormModal({ product = null, onClose, onSaved }) {
           </div>
 
           {/* Images */}
-<div>
-  <label style={labelStyle}>Product Images <span style={{ fontSize: 10, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(first image is main)</span></label>
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
-    {[0, 1, 2, 3].map(i => (
-      <div key={i}>
-        <div style={{ aspectRatio: '1/1', background: 'var(--grey)', borderRadius: 10, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8, position: 'relative', border: '1.5px dashed var(--border)' }}>
-          {form.images[i]
-            ? <img src={form.images[i]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            : <span style={{ fontSize: 28, opacity: 0.3 }}>{i === 0 ? '📸' : '+'}</span>
-          }
-          {form.images[i] && (
-            <button onClick={() => {
-              const imgs = [...form.images]
-              imgs[i] = ''
-              set('images', imgs)
-            }} style={{ position: 'absolute', top: 4, right: 4, width: 20, height: 20, background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', color: 'white', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-          )}
-        </div>
-        <input type="file" accept="image/*" id={`img-${i}`} style={{ display: 'none' }}
-          onChange={async (e) => {
-            const file = e.target.files[0]
-            if (!file) return
-            try {
-              const url = await uploadImage(file)
-              const imgs = [...form.images]
-              imgs[i] = url
-              set('images', imgs)
-            } catch (err) {
-              console.error('Upload failed:', err)
-            }
-          }}
-        />
-        <label htmlFor={`img-${i}`} style={{ display: 'block', textAlign: 'center', fontSize: 11, fontWeight: 600, color: 'var(--mid)', cursor: 'pointer', padding: '6px', background: 'var(--grey)', borderRadius: 6 }}>
-          {i === 0 ? 'Main Image' : `Image ${i + 1}`}
-        </label>
-      </div>
-    ))}
-  </div>
-</div>
+          <div>
+            <label style={labelStyle}>Product Images <span style={{ fontSize: 10, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(first image is main)</span></label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+              {[0, 1, 2, 3].map(i => (
+                <div key={i}>
+                  <div style={{ aspectRatio: '1/1', background: 'var(--grey)', borderRadius: 10, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8, position: 'relative', border: '1.5px dashed var(--border)' }}>
+                    {form.images[i]
+                      ? <img src={form.images[i]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <span style={{ fontSize: 28, opacity: 0.3 }}>{i === 0 ? '📸' : '+'}</span>
+                    }
+                    {form.images[i] && (
+                      <button onClick={() => {
+                        const imgs = [...form.images]
+                        imgs[i] = ''
+                        set('images', imgs)
+                      }} style={{ position: 'absolute', top: 4, right: 4, width: 20, height: 20, background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', color: 'white', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                    )}
+                  </div>
+                  <input type="file" accept="image/*" id={`img-${i}`} style={{ display: 'none' }}
+                    onChange={async (e) => {
+                      const file = e.target.files[0]
+                      if (!file) return
+                      try {
+                        const url = await uploadImage(file)
+                        const imgs = [...form.images]
+                        imgs[i] = url
+                        set('images', imgs)
+                      } catch (err) {
+                        console.error('Upload failed:', err)
+                      }
+                    }}
+                  />
+                  <label htmlFor={`img-${i}`} style={{ display: 'block', textAlign: 'center', fontSize: 11, fontWeight: 600, color: 'var(--mid)', cursor: 'pointer', padding: '6px', background: 'var(--grey)', borderRadius: 6 }}>
+                    {i === 0 ? 'Main Image' : `Image ${i + 1}`}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Description */}
           <div>
