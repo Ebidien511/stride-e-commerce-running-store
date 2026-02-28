@@ -12,7 +12,7 @@ export default function ProductCard({ product }) {
 
   const handleAdd = (e) => {
     e.stopPropagation()
-    addItem({ ...product, size: 'UK 8', meta: product.arch, qty: 1 })
+    addItem({ ...product, size: 'UK 8', meta: product.arch, qty: 1, cost: product.cost || 0 })
     openCart()
   }
 

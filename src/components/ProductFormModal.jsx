@@ -11,7 +11,7 @@ const EMOJIS = ['👟', '🥾', '👠', '🩴', '👞']
 
 const EMPTY_FORM = {
   brand: '', name: '', category: '', arch: '', terrain: '',
-  drop: '', weight: '', price: '', originalPrice: '',
+  drop: '', weight: '', price: '', originalPrice: '', cost: '',  // 👈 add cost
   tag: '', emoji: '👟', description: '', features: '', stock: '',
 }
 
@@ -26,6 +26,7 @@ const productToForm = (product) => ({
   weight: product.weight || '',
   price: product.price?.toString() || '',
   originalPrice: product.originalPrice?.toString() || '',
+  cost: product.cost?.toString() || '',
   tag: product.tag || '',
   emoji: product.emoji || '👟',
   description: product.description || '',
@@ -35,19 +36,23 @@ const productToForm = (product) => ({
 
 function validate(form) {
   const errors = {}
-  if (!form.brand)           errors.brand = 'Brand is required'
-  if (!form.name.trim())     errors.name = 'Product name is required'
-  if (!form.category)        errors.category = 'Category is required'
-  if (!form.arch)            errors.arch = 'Arch type is required'
-  if (!form.terrain)         errors.terrain = 'Terrain is required'
-  if (!form.drop.trim())     errors.drop = 'Heel drop is required (e.g. 8mm)'
-  if (!form.weight.trim())   errors.weight = 'Weight is required (e.g. 280g)'
+  if (!form.brand) errors.brand = 'Brand is required'
+  if (!form.name.trim()) errors.name = 'Product name is required'
+  if (!form.category) errors.category = 'Category is required'
+  if (!form.arch) errors.arch = 'Arch type is required'
+  if (!form.terrain) errors.terrain = 'Terrain is required'
+  if (!form.drop.trim()) errors.drop = 'Heel drop is required (e.g. 8mm)'
+  if (!form.weight.trim()) errors.weight = 'Weight is required (e.g. 280g)'
   if (!form.price || isNaN(Number(form.price)) || Number(form.price) <= 0)
     errors.price = 'Enter a valid price'
   if (form.originalPrice && (isNaN(Number(form.originalPrice)) || Number(form.originalPrice) <= Number(form.price)))
     errors.originalPrice = 'Original price must be greater than current price'
+  if (!form.cost || isNaN(Number(form.cost)) || Number(form.cost) <= 0)
+    errors.cost = 'Enter a valid cost price'
+  if (form.cost && Number(form.cost) >= Number(form.price))
+    errors.cost = 'Cost must be less than selling price'
   if (!form.description.trim()) errors.description = 'Description is required'
-  if (!form.features.trim())    errors.features = 'Enter at least one feature'
+  if (!form.features.trim()) errors.features = 'Enter at least one feature'
   if (form.stock === '' || isNaN(Number(form.stock)) || Number(form.stock) < 0)
     errors.stock = 'Enter a valid stock number'
   return errors
@@ -70,6 +75,7 @@ function buildProductPayload(form, existingId = null) {
     weight: form.weight.trim(),
     price: Number(form.price),
     originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
+    cost: Number(form.cost),
     tag: form.tag || null,
     emoji: form.emoji,
     description: form.description.trim(),
@@ -239,7 +245,13 @@ export default function ProductFormModal({ product = null, onClose, onSaved }) {
           </div>
 
           {/* Price + Original Price + Stock */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16 }}>
+            <div>
+              <label style={labelStyle}>Cost Price (R) *</label>
+              <input type="number" value={form.cost} onChange={e => set('cost', e.target.value)} placeholder="e.g. 1200" style={inputStyle(errors.cost)} />
+              {errors.cost && <p style={errorStyle}>{errors.cost}</p>}
+              <p style={{ fontSize: 10, color: 'var(--mid)', marginTop: 4 }}>Wholesale cost</p>
+            </div>
             <div>
               <label style={labelStyle}>Price (R) *</label>
               <input type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="e.g. 1899" style={inputStyle(errors.price)} />
@@ -293,7 +305,7 @@ export default function ProductFormModal({ product = null, onClose, onSaved }) {
             {saved
               ? `✓ ${isEditing ? 'Changes Saved!' : 'Product Added!'}`
               : saving ? 'Saving...'
-              : isEditing ? 'Save Changes' : '+ Add Product'}
+                : isEditing ? 'Save Changes' : '+ Add Product'}
           </button>
         </div>
       </div>

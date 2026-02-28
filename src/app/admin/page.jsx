@@ -6,18 +6,9 @@ import ProductFormModal from '@/components/ProductFormModal'
 import { deleteProduct } from '@/services/productServices'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getAllOrders, updateOrderStatus } from '@/services/orderService'
+import { getCustomerCount } from '@/services/userService'
+
 import { useEffect } from 'react'
-
-
-
-const STATS = [
-  { label: 'Total Revenue', value: 'R284,320', change: '+12.4%', up: true, icon: '💰' },
-  { label: 'Orders Today', value: '47', change: '+8.1%', up: true, icon: '📦' },
-  { label: 'Active Customers', value: '1,284', change: '+3.2%', up: true, icon: '👥' },
-  { label: 'Low Stock Items', value: '6', change: '-2', up: false, icon: '⚠️' },
-]
-
-
 
 const STATUS_COLORS = {
   Delivered: { bg: '#dcfce7', color: '#166534' },
@@ -41,6 +32,59 @@ export default function AdminPage() {
   const [orders, setOrders] = useState([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('All')
+  const [customerCount, setCustomerCount] = useState(0)
+
+  // ── Computed report data ──────────────────────────────────────────────
+const deliveredOrders = orders.filter(o => o.status !== 'Cancelled')
+
+// Financial
+const totalRevenue = deliveredOrders.reduce((sum, o) => sum + (o.total || 0), 0)
+const totalCost = deliveredOrders.reduce((sum, o) => {
+  return sum + (o.items?.reduce((s, item) => {
+    const product = PRODUCTS_DATA.find(p => p.id === item.id)
+    return s + ((product?.cost || 0) * item.qty)
+  }, 0) || 0)
+}, 0)
+const grossProfit = totalRevenue - totalCost
+const profitMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : 0
+const avgOrderValue = deliveredOrders.length > 0 ? Math.round(totalRevenue / deliveredOrders.length) : 0
+const today = new Date().toDateString()
+const ordersToday = orders.filter(o => new Date(o.createdAt).toDateString() === today).length
+
+// Product stats — count units sold per product from orders
+const productSales = {}
+deliveredOrders.forEach(o => {
+  o.items?.forEach(item => {
+    if (!productSales[item.id]) productSales[item.id] = { qty: 0, revenue: 0 }
+    productSales[item.id].qty += item.qty
+    productSales[item.id].revenue += item.qty * item.price
+  })
+})
+const rankedProducts = PRODUCTS_DATA
+  .map(p => ({ ...p, unitsSold: productSales[p.id]?.qty || 0, salesRevenue: productSales[p.id]?.revenue || 0 }))
+  .sort((a, b) => b.unitsSold - a.unitsSold)
+
+// Customer stats
+const customerOrderMap = {}
+deliveredOrders.forEach(o => {
+  const email = o.details?.email
+  if (!email) return
+  if (!customerOrderMap[email]) customerOrderMap[email] = { name: `${o.details.firstName} ${o.details.lastName}`, email, orders: 0, spent: 0 }
+  customerOrderMap[email].orders += 1
+  customerOrderMap[email].spent += o.total || 0
+})
+const topCustomers = Object.values(customerOrderMap).sort((a, b) => b.spent - a.spent).slice(0, 5)
+const repeatBuyers = Object.values(customerOrderMap).filter(c => c.orders > 1).length
+const totalUniqueCustomers = Object.keys(customerOrderMap).length
+
+  // Add to your existing useEffect:
+  useEffect(() => {
+    getAllOrders().then(data => {
+      setOrders(data)
+      setOrdersLoading(false)
+    }).catch(err => console.error(err))
+    getCustomerCount().then(setCustomerCount).catch(console.error)
+  }, [])
 
 
   useEffect(() => {
@@ -121,18 +165,23 @@ export default function AdminPage() {
                 <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 2 }}>DASHBOARD</h1>
                 <p style={{ color: 'var(--mid)', fontSize: 13 }}>Welcome back. Here's what's happening today.</p>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
-                {STATS.map(s => (
-                  <div key={s.label} style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                      <span style={{ fontSize: 24 }}>{s.icon}</span>
-                      <span style={{ fontSize: 11, fontWeight: 700, background: s.up ? '#dcfce7' : '#fee2e2', color: s.up ? 'var(--green)' : 'var(--red)', padding: '3px 8px', borderRadius: 100 }}>{s.change}</span>
-                    </div>
-                    <div style={{ fontFamily: 'Bebas Neue', fontSize: 32, letterSpacing: 1, marginBottom: 4 }}>{s.value}</div>
-                    <div style={{ fontSize: 12, color: 'var(--mid)' }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
+  {[
+    { label: 'Total Revenue', value: `R${totalRevenue.toLocaleString('en-ZA')}`, icon: '💰', sub: `${deliveredOrders.length} orders` },
+    { label: 'Orders Today', value: ordersToday, icon: '📦', sub: 'New orders today' },
+    { label: 'Registered Customers', value: customerCount, icon: '👥', sub: 'Total accounts' },
+    { label: 'Low Stock Items', value: PRODUCTS_DATA.filter(p => p.stock <= 5).length, icon: '⚠️', sub: '5 pairs or fewer' },
+  ].map(s => (
+    <div key={s.label} style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+        <span style={{ fontSize: 24 }}>{s.icon}</span>
+      </div>
+      <div style={{ fontFamily: 'Bebas Neue', fontSize: 32, letterSpacing: 1, marginBottom: 4 }}>{s.value}</div>
+      <div style={{ fontSize: 12, color: 'var(--mid)', marginBottom: 2 }}>{s.label}</div>
+      <div style={{ fontSize: 11, color: 'var(--mid)', opacity: 0.7 }}>{s.sub}</div>
+    </div>
+  ))}
+</div>
               <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 24 }}>
                 <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 22, letterSpacing: 1 }}>RECENT ORDERS</h2>
@@ -348,86 +397,203 @@ export default function AdminPage() {
           )}
 
           {/* ── REPORTS ── */}
-          {activePanel === 'reports' && (
-            <div>
-              <div style={{ marginBottom: 32 }}>
-                <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 2 }}>REPORTS</h1>
-                <p style={{ color: 'var(--mid)', fontSize: 13 }}>Analytics for the last 30 days</p>
-              </div>
-              <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', marginBottom: 32, gap: 4 }}>
-                {REPORT_TABS.map(tab => (
-                  <button key={tab} onClick={() => setActiveReport(tab)}
-                    style={{ padding: '12px 28px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: activeReport === tab ? 'var(--black)' : 'var(--mid)', borderBottom: `3px solid ${activeReport === tab ? 'var(--accent)' : 'transparent'}`, marginBottom: -2, borderRadius: '4px 4px 0 0', transition: 'all 0.2s', fontFamily: 'DM Sans' }}>
-                    {tab}
-                  </button>
-                ))}
-              </div>
-              {activeReport === 'Financial' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
-                    {[['Total Revenue', 'R284,320', '+12.4% vs last month'], ['Avg Order Value', 'R2,140', '+5.1% vs last month'], ['Refunds Issued', 'R8,400', '-2.1% vs last month']].map(([l, v, s]) => (
-                      <div key={l} style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: 12, color: 'var(--mid)', marginBottom: 8, fontFamily: 'DM Mono', textTransform: 'uppercase', letterSpacing: 1 }}>{l}</div>
-                        <div style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 1, marginBottom: 4 }}>{v}</div>
-                        <div style={{ fontSize: 12, color: 'var(--green)' }}>{s}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ background: 'white', borderRadius: 16, padding: 28, border: '1px solid var(--border)' }}>
-                    <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 20, letterSpacing: 1, marginBottom: 20 }}>REVENUE BY MONTH</h3>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 140 }}>
-                      {[65, 80, 55, 90, 75, 100, 85, 110, 95, 120, 88, 130].map((h, i) => (
-                        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                          <div style={{ width: '100%', background: 'var(--accent)', borderRadius: '4px 4px 0 0', height: `${h}%`, opacity: i === 11 ? 1 : 0.5, transition: 'opacity 0.2s', cursor: 'pointer' }} title={`R${(h * 2200).toLocaleString()}`} />
-                          <div style={{ fontSize: 8, color: 'var(--mid)', fontFamily: 'DM Mono' }}>{'JFMAMJJASOND'[i]}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {activeReport === 'Top Products' && (
-                <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr style={{ background: 'var(--grey)' }}>
-                        {['#', 'Product', 'Units Sold', 'Revenue', 'Trend'].map(h => (
-                          <th key={h} style={{ padding: '12px 20px', textAlign: 'left', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', fontFamily: 'DM Mono' }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {PRODUCTS_DATA.map((p, i) => (
-                        <tr key={p.id} style={{ borderTop: '1px solid var(--border)' }}>
-                          <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 20, color: 'var(--mid)' }}>{i + 1}</td>
-                          <td style={{ padding: '16px 20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                              <span style={{ fontSize: 24 }}>{p.emoji}</span>
-                              <div><div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div><div style={{ fontSize: 11, color: 'var(--mid)' }}>{p.brand}</div></div>
-                            </div>
-                          </td>
-                          <td style={{ padding: '16px 20px', fontSize: 14, fontWeight: 600 }}>{[142, 98, 76, 61, 43][i] ?? '—'}</td>
-                          <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>{fmt(([142, 98, 76, 61, 43][i] ?? 0) * p.price)}</td>
-                          <td style={{ padding: '16px 20px', fontSize: 13, color: i < 3 ? 'var(--green)' : 'var(--red)', fontWeight: 700 }}>{i < 3 ? '↑ +' : '↓ -'}{[18, 12, 8, 3, 5][i] ?? 0}%</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {activeReport === 'Customers' && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
-                  {[['Total Customers', '1,284', '+3.2%', true], ['New This Month', '156', '+18.4%', true], ['Repeat Buyers', '68%', '+2.1%', true], ['Avg Lifetime Value', 'R4,820', '+6.3%', true], ['Churn Rate', '2.4%', '-0.8%', true], ['NPS Score', '72', '+4pts', true]].map(([l, v, c, up]) => (
-                    <div key={l} style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--border)' }}>
-                      <div style={{ fontSize: 12, color: 'var(--mid)', marginBottom: 8, fontFamily: 'DM Mono', textTransform: 'uppercase', letterSpacing: 1 }}>{l}</div>
-                      <div style={{ fontFamily: 'Bebas Neue', fontSize: 32, letterSpacing: 1, marginBottom: 4 }}>{v}</div>
-                      <div style={{ fontSize: 12, color: up ? 'var(--green)' : 'var(--red)', fontWeight: 600 }}>{c}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+{activePanel === 'reports' && (
+  <div>
+    <div style={{ marginBottom: 32 }}>
+      <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 2 }}>REPORTS</h1>
+      <p style={{ color: 'var(--mid)', fontSize: 13 }}>Live data from your store</p>
+    </div>
+    <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', marginBottom: 32, gap: 4 }}>
+      {REPORT_TABS.map(tab => (
+        <button key={tab} onClick={() => setActiveReport(tab)}
+          style={{ padding: '12px 28px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: activeReport === tab ? 'var(--black)' : 'var(--mid)', borderBottom: `3px solid ${activeReport === tab ? 'var(--accent)' : 'transparent'}`, marginBottom: -2, borderRadius: '4px 4px 0 0', transition: 'all 0.2s', fontFamily: 'DM Sans' }}>
+          {tab}
+        </button>
+      ))}
+    </div>
+
+    {/* ── FINANCIAL ── */}
+    {activeReport === 'Financial' && (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
+          {[
+            ['💰', 'Total Revenue', `R${totalRevenue.toLocaleString('en-ZA')}`, 'All non-cancelled orders'],
+            ['🏷️', 'Cost of Sales', `R${totalCost.toLocaleString('en-ZA')}`, 'Wholesale cost of sold items'],
+            ['📈', 'Gross Profit', `R${grossProfit.toLocaleString('en-ZA')}`, `${profitMargin}% profit margin`],
+            ['🧾', 'Avg Order Value', `R${avgOrderValue.toLocaleString('en-ZA')}`, `Across ${deliveredOrders.length} orders`],
+          ].map(([icon, label, value, sub]) => (
+            <div key={label} style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 24, marginBottom: 12 }}>{icon}</div>
+              <div style={{ fontSize: 11, color: 'var(--mid)', marginBottom: 8, fontFamily: 'DM Mono', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
+              <div style={{ fontFamily: 'Bebas Neue', fontSize: 32, letterSpacing: 1, marginBottom: 4 }}>{value}</div>
+              <div style={{ fontSize: 11, color: 'var(--mid)' }}>{sub}</div>
             </div>
-          )}
+          ))}
+        </div>
+
+        {/* Profit breakdown bar */}
+        <div style={{ background: 'white', borderRadius: 16, padding: 28, border: '1px solid var(--border)' }}>
+          <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 20, letterSpacing: 1, marginBottom: 20 }}>REVENUE BREAKDOWN</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[
+              ['Revenue', totalRevenue, 'var(--black)', totalRevenue],
+              ['Cost of Sales', totalCost, '#ef4444', totalRevenue],
+              ['Gross Profit', grossProfit, 'var(--green)', totalRevenue],
+            ].map(([label, value, color, max]) => (
+              <div key={label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>{label}</span>
+                  <span style={{ fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>R{value.toLocaleString('en-ZA')}</span>
+                </div>
+                <div style={{ height: 10, background: 'var(--grey)', borderRadius: 100, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: max > 0 ? `${(value / max) * 100}%` : '0%', background: color, borderRadius: 100, transition: 'width 0.6s ease' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Orders by status */}
+        <div style={{ background: 'white', borderRadius: 16, padding: 28, border: '1px solid var(--border)' }}>
+          <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 20, letterSpacing: 1, marginBottom: 20 }}>ORDERS BY STATUS</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+            {['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(status => {
+              const count = orders.filter(o => o.status === status).length
+              return (
+                <div key={status} style={{ padding: 16, background: 'var(--grey)', borderRadius: 12, textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'Bebas Neue', fontSize: 32, letterSpacing: 1 }}>{count}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, display: 'inline-block', marginTop: 4, ...STATUS_COLORS[status] }}>{status}</div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* ── TOP PRODUCTS ── */}
+    {activeReport === 'Top Products' && (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden' }}>
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+            <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 20, letterSpacing: 1 }}>BEST SELLING PRODUCTS</h3>
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: 'var(--grey)' }}>
+                {['#', 'Product', 'Units Sold', 'Revenue', 'Cost', 'Profit'].map(h => (
+                  <th key={h} style={{ padding: '12px 20px', textAlign: 'left', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', fontFamily: 'DM Mono' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rankedProducts.length === 0
+                ? <tr><td colSpan={6} style={{ padding: 48, textAlign: 'center', color: 'var(--mid)' }}>No sales data yet.</td></tr>
+                : rankedProducts.map((p, i) => {
+                  const cost = (p.cost || 0) * p.unitsSold
+                  const profit = p.salesRevenue - cost
+                  return (
+                    <tr key={p.id} style={{ borderTop: '1px solid var(--border)' }}>
+                      <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 20, color: i < 3 ? 'var(--accent)' : 'var(--mid)' }}>{i + 1}</td>
+                      <td style={{ padding: '16px 20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <span style={{ fontSize: 24 }}>{p.emoji}</span>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div>
+                            <div style={{ fontSize: 11, color: 'var(--mid)' }}>{p.brand} · {p.category}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: '16px 20px', fontSize: 14, fontWeight: 700 }}>{p.unitsSold}</td>
+                      <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>R{p.salesRevenue.toLocaleString('en-ZA')}</td>
+                      <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1, color: '#ef4444' }}>R{cost.toLocaleString('en-ZA')}</td>
+                      <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1, color: 'var(--green)' }}>R{profit.toLocaleString('en-ZA')}</td>
+                    </tr>
+                  )
+                })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Sales by category */}
+        <div style={{ background: 'white', borderRadius: 16, padding: 28, border: '1px solid var(--border)' }}>
+          <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 20, letterSpacing: 1, marginBottom: 20 }}>SALES BY CATEGORY</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {['road', 'trail', 'track', 'gym'].map(cat => {
+              const catRevenue = rankedProducts.filter(p => p.category === cat).reduce((s, p) => s + p.salesRevenue, 0)
+              const maxRevenue = Math.max(...['road', 'trail', 'track', 'gym'].map(c => rankedProducts.filter(p => p.category === c).reduce((s, p) => s + p.salesRevenue, 0)))
+              return (
+                <div key={cat}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, textTransform: 'capitalize' }}>{cat}</span>
+                    <span style={{ fontFamily: 'Bebas Neue', fontSize: 16, letterSpacing: 1 }}>R{catRevenue.toLocaleString('en-ZA')}</span>
+                  </div>
+                  <div style={{ height: 8, background: 'var(--grey)', borderRadius: 100, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: maxRevenue > 0 ? `${(catRevenue / maxRevenue) * 100}%` : '0%', background: 'var(--accent)', borderRadius: 100, transition: 'width 0.6s ease' }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* ── CUSTOMERS ── */}
+    {activeReport === 'Customers' && (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
+          {[
+            ['👥', 'Registered Customers', customerCount, ''],
+            ['🛍️', 'Customers Who Ordered', totalUniqueCustomers, ''],
+            ['🔁', 'Repeat Buyers', repeatBuyers, `${totalUniqueCustomers > 0 ? ((repeatBuyers / totalUniqueCustomers) * 100).toFixed(0) : 0}% of buyers`],
+            ['💸', 'Avg Customer Spend', totalUniqueCustomers > 0 ? `R${Math.round(totalRevenue / totalUniqueCustomers).toLocaleString('en-ZA')}` : 'R0', 'Per ordering customer'],
+          ].map(([icon, label, value, sub]) => (
+            <div key={label} style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 24, marginBottom: 12 }}>{icon}</div>
+              <div style={{ fontSize: 11, color: 'var(--mid)', marginBottom: 8, fontFamily: 'DM Mono', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
+              <div style={{ fontFamily: 'Bebas Neue', fontSize: 32, letterSpacing: 1, marginBottom: 4 }}>{value}</div>
+              {sub && <div style={{ fontSize: 11, color: 'var(--mid)' }}>{sub}</div>}
+            </div>
+          ))}
+        </div>
+
+        {/* Top customers table */}
+        <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--border)', overflow: 'hidden' }}>
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+            <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 20, letterSpacing: 1 }}>TOP CUSTOMERS BY SPEND</h3>
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: 'var(--grey)' }}>
+                {['#', 'Customer', 'Orders', 'Total Spent', 'Avg Order'].map(h => (
+                  <th key={h} style={{ padding: '12px 20px', textAlign: 'left', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', fontFamily: 'DM Mono' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {topCustomers.length === 0
+                ? <tr><td colSpan={5} style={{ padding: 48, textAlign: 'center', color: 'var(--mid)' }}>No customer data yet.</td></tr>
+                : topCustomers.map((c, i) => (
+                  <tr key={c.email} style={{ borderTop: '1px solid var(--border)' }}>
+                    <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 20, color: i < 3 ? 'var(--accent)' : 'var(--mid)' }}>{i + 1}</td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{c.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--mid)' }}>{c.email}</div>
+                    </td>
+                    <td style={{ padding: '16px 20px', fontSize: 14, fontWeight: 700 }}>{c.orders}</td>
+                    <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>R{c.spent.toLocaleString('en-ZA')}</td>
+                    <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 18, letterSpacing: 1 }}>R{Math.round(c.spent / c.orders).toLocaleString('en-ZA')}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+  </div>
+)}
         </main>
       </div>
     </ProtectedRoute>

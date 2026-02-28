@@ -42,7 +42,7 @@ export default function ProductDetailPage() {
 
   const handleAdd = () => {
     if (!selectedSize) { setSizeError(true); return }
-    addItem({ ...product, size: `UK ${selectedSize}`, meta: product.arch })
+    addItem({ ...product, size: `UK ${selectedSize}`, meta: product.arch, cost: product.cost || 0 })
     openCart()
   }
 
