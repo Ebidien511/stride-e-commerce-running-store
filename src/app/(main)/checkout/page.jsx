@@ -4,8 +4,7 @@ import { useCart } from '@/context/CartContext'
 import { useAuth } from '@/context/AuthContext'
 import { getUserData } from '@/services/userService'
 import { useEffect } from 'react'
-
-import { placeOrder as placeOrderService } from '@/services/orderService'
+import { placeOrder as placeOrderService, decreaseStock } from '@/services/orderService'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
 const STEPS = ['Cart', 'Details', 'Payment', 'Confirm']
@@ -113,25 +112,27 @@ export default function CheckoutPage() {
   }
 
   const goToPayment = () => { if (validateDetails()) setStep(3) }
+
   const placeOrder = async () => {
-    if (!validateCard()) return
-    try {
-      const orderId = await placeOrderService({
-        uid: user.uid,
-        items: items.map(item => ({ ...item, cost: item.cost || 0 })),
-        details,
-        payMethod,
-        subtotal,
-        delivery,
-        total,
-      })
-      setOrderNum(orderId)
-      clearCart()
-      setStep(4)
-    } catch (err) {
-      console.error('Order failed:', err)
-    }
+  if (!validateCard()) return
+  try {
+    const orderId = await placeOrderService({
+      uid: user.uid,
+      items,
+      details,
+      payMethod,
+      subtotal,
+      delivery,
+      total,
+    })
+    await decreaseStock(items)  // 👈 add this
+    setOrderNum(orderId)
+    clearCart()
+    setStep(4)
+  } catch (err) {
+    console.error('Order failed:', err)
   }
+}
 
   const inputStyle = (err) => ({ width: '100%', border: `1.5px solid ${err ? 'var(--red)' : 'var(--border)'}`, borderRadius: 8, padding: '11px 14px', fontSize: 14, fontFamily: 'DM Sans', outline: 'none', background: 'white', color: 'var(--black)', boxShadow: err ? '0 0 0 3px rgba(220,38,38,0.08)' : 'none' })
 

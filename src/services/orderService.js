@@ -1,6 +1,6 @@
-import { doc, setDoc, collection, getDocs, query, where, orderBy } from 'firebase/firestore'
+import { doc, setDoc, collection, getDocs, query, where, orderBy, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { updateDoc } from 'firebase/firestore'
+
 
 
 export const placeOrder = async ({ uid, items, details, payMethod, subtotal, delivery, total }) => {
@@ -35,4 +35,16 @@ export const getAllOrders = async () => {
 
 export const updateOrderStatus = async (orderId, status) => {
   await updateDoc(doc(db, 'orders', orderId), { status })
+}
+
+export const decreaseStock = async (items) => {
+  for (const item of items) {
+    const ref = doc(db, 'products', item.id)
+    const snap = await getDoc(ref)
+    if (!snap.exists()) continue
+    const currentStock = snap.data().stock || 0
+    const newStock = Math.max(0, currentStock - item.qty)
+    const status = newStock === 0 ? 'Out of Stock' : newStock <= 5 ? 'Low Stock' : 'Active'
+    await updateDoc(ref, { stock: newStock, status })
+  }
 }
