@@ -2,6 +2,9 @@
 import { useState } from 'react'
 import { useCart } from '@/context/CartContext'
 import { useAuth } from '@/context/AuthContext'
+import { getUserData } from '@/services/userService'
+import { useEffect } from 'react'
+
 import { placeOrder as placeOrderService } from '@/services/orderService'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
@@ -51,6 +54,23 @@ export default function CheckoutPage() {
   const { user } = useAuth()
   const { items, subtotal, delivery, total, fmt, clearCart } = useCart()
   const [step, setStep] = useState(2)
+
+  useEffect(() => {
+  if (!user) return
+  getUserData(user.uid).then(data => {
+    if (!data) return
+    setDetails({
+      firstName: data.firstName || '',
+      lastName: data.lastName || '',
+      email: data.email || user.email || '',
+      phone: data.phone || '',
+      street: data.address?.street || '',
+      city: data.address?.city || '',
+      province: data.address?.province || '',
+      postal: data.address?.postal || '',
+    })
+  })
+}, [user])
 
   // Step 2 — Details
   const [details, setDetails] = useState({ firstName: '', lastName: '', email: '', phone: '', street: '', city: '', province: '', postal: '' })
