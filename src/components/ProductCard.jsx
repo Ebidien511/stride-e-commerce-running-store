@@ -22,7 +22,10 @@ export default function ProductCard({ product }) {
       onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '' }}
     >
       <div style={{ background: 'var(--grey)', aspectRatio: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-        <span style={{ fontSize: 80 }}>{product.emoji}</span>
+        {product.images?.[0]
+          ? <img src={product.images[0]} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          : <span style={{ fontSize: 80 }}>👟</span>
+        }
         {product.tag && (
           <span style={{ position: 'absolute', top: 12, left: 12, background: product.tag === 'New' ? 'var(--accent2)' : product.tag === 'Sale' ? '#16a34a' : 'var(--accent)', color: 'white', fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 100, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             {product.tag}

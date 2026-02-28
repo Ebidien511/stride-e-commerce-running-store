@@ -59,14 +59,20 @@ export default function ProductDetailPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 72, alignItems: 'start' }}>
         {/* Gallery */}
         <div style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ background: 'var(--grey)', borderRadius: 20, aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', fontSize: 180 }}>
-            {product.emoji}
+          <div style={{ background: 'var(--grey)', borderRadius: 20, aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+            {product.images?.[activeThumb]
+              ? <img src={product.images[activeThumb]} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontSize: 180 }}>👟</span>
+            }
             {product.tag && <span style={{ position: 'absolute', top: 18, left: 18, background: product.tag === 'New' ? 'var(--accent2)' : 'var(--accent)', color: 'white', fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 100, textTransform: 'uppercase' }}>{product.tag}</span>}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10 }}>
             {[0, 1, 2, 3].map(i => (
-              <div key={i} onClick={() => setActiveThumb(i)} style={{ aspectRatio: '1/1', background: 'var(--grey)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: `2px solid ${activeThumb === i ? 'var(--black)' : 'transparent'}`, fontSize: 40 }}>
-                {product.emoji}
+              <div key={i} onClick={() => setActiveThumb(i)} style={{ aspectRatio: '1/1', background: 'var(--grey)', borderRadius: 12, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: `2px solid ${activeThumb === i ? 'var(--black)' : 'transparent'}`, fontSize: 40 }}>
+                {product.images?.[i]
+                  ? <img src={product.images[i]} alt={`${product.name} view ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <span style={{ opacity: 0.3 }}>👟</span>
+                }
               </div>
             ))}
           </div>

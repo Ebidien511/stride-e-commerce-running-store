@@ -23,7 +23,7 @@ export function useWishlist() {
       await removeFromWishlist(user.uid, product.id)
       setWishlist(prev => prev.filter(i => i.id !== product.id))
     } else {
-      const item = { id: product.id, brand: product.brand, name: product.name, price: product.price, originalPrice: product.originalPrice || null, tag: product.tag || null, emoji: product.emoji }
+      const item = { id: product.id, brand: product.brand, name: product.name, price: product.price, originalPrice: product.originalPrice || null, tag: product.tag || null, images: product.images || [] }
       await addToWishlist(user.uid, item)
       setWishlist(prev => [...prev, item])
     }

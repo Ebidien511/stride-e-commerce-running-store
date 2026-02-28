@@ -124,8 +124,9 @@ export default function CheckoutPage() {
       <div style={{ padding: '0 24px' }}>
         {items.map(item => (
           <div key={`${item.id}-${item.size}`} style={{ display: 'grid', gridTemplateColumns: '40px 1fr auto', gap: 12, alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ width: 40, height: 40, background: 'var(--grey)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{item.emoji}</div>
-            <div>
+            <div style={{ width: 40, height: 40, background: 'var(--grey)', borderRadius: 8, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+              {item.images?.[0] ? <img src={item.images[0]} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '👟'}
+            </div>            <div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{item.name}</div>
               <div style={{ fontSize: 11, color: 'var(--mid)' }}>{item.size} × {item.qty}</div>
             </div>

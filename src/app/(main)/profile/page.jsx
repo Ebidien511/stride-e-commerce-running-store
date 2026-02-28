@@ -252,7 +252,10 @@ export default function ProfilePage() {
                     <div key={item.id} onClick={() => router.push(`/product/${item.id}`)} style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'grid', gridTemplateColumns: '72px 1fr auto', gap: 16, alignItems: 'center', cursor: 'pointer', transition: 'background 0.15s' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--grey)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'white'}
-                    >                      <div style={{ width: 72, height: 72, background: 'var(--grey)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>{item.emoji}</div>
+                    >
+                      <div style={{ width: 72, height: 72, background: 'var(--grey)', borderRadius: 12, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>
+                        {item.images?.[0] ? <img src={item.images[0]} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '👟'}
+                      </div>
                       <div>
                         <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', marginBottom: 4 }}>{item.brand}</div>
                         <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{item.name}</div>

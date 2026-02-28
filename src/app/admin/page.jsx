@@ -276,8 +276,9 @@ const totalUniqueCustomers = Object.keys(customerOrderMap).length
                               <tr key={p.id} style={{ borderTop: '1px solid var(--border)' }}>
                                 <td style={{ padding: '16px 20px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <div style={{ width: 48, height: 48, background: 'var(--grey)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{p.emoji}</div>
-                                    <div>
+<div style={{ width: 48, height: 48, background: 'var(--grey)', borderRadius: 10, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>
+  {p.images?.[0] ? <img src={p.images[0]} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '👟'}
+</div>                                    <div>
                                       <div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div>
                                       <div style={{ fontSize: 11, color: 'var(--mid)' }}>{p.brand}</div>
                                     </div>
@@ -497,8 +498,9 @@ const totalUniqueCustomers = Object.keys(customerOrderMap).length
                       <td style={{ padding: '16px 20px', fontFamily: 'Bebas Neue', fontSize: 20, color: i < 3 ? 'var(--accent)' : 'var(--mid)' }}>{i + 1}</td>
                       <td style={{ padding: '16px 20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <span style={{ fontSize: 24 }}>{p.emoji}</span>
-                          <div>
+<div style={{ width: 36, height: 36, background: 'var(--grey)', borderRadius: 8, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+  {p.images?.[0] ? <img src={p.images[0]} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '👟'}
+</div>                          <div>
                             <div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div>
                             <div style={{ fontSize: 11, color: 'var(--mid)' }}>{p.brand} · {p.category}</div>
                           </div>
