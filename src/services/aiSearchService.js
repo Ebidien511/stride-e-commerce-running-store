@@ -87,3 +87,44 @@ ${JSON.stringify(products.map(p => ({
   const clean = text.replace(/```json|```/g, '').trim()
   return JSON.parse(clean)
 }
+
+export const getProductSummary = async (product) => {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `You are a running shoe expert for STRIDE, a South African running shoe store.
+Generate a summary for this product and return ONLY a JSON object, no other text:
+{
+  "summary": "2-3 sentence expert summary of the shoe",
+  "greatFor": ["item1", "item2", "item3", "item4"],
+  "notIdealFor": ["item1", "item2", "item3", "item4"]
+}
+
+Product:
+${JSON.stringify({
+  brand: product.brand,
+  name: product.name,
+  category: product.category,
+  arch: product.arch,
+  terrain: product.terrain,
+  drop: product.drop,
+  weight: product.weight,
+  price: product.price,
+  description: product.description,
+  features: product.features,
+})}`
+          }]
+        }]
+      })
+    }
+  )
+  const data = await response.json()
+  const text = data.candidates[0].content.parts[0].text.trim()
+  const clean = text.replace(/```json|```/g, '').trim()
+  return JSON.parse(clean)
+}

@@ -6,6 +6,7 @@ import { useWishlist } from '@/hooks/useWishlist'
 import { fmt } from '@/lib/validation'
 import ProductCard from '@/components/ProductCard'
 import { useProduct, useProducts } from '@/hooks/useProducts'
+import { getProductSummary } from '@/services/aiSearchService'
 
 const SIZES = ['5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11']
 const SOLD_OUT = ['5', '11']
@@ -24,6 +25,25 @@ export default function ProductDetailPage() {
   const wished = isWished(product?.id)
   const [activeTab, setActiveTab] = useState('Description')
   const [sizeError, setSizeError] = useState(false)
+
+  const [aiSummary, setAiSummary] = useState(null)
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false)
+  const [aiSummaryError, setAiSummaryError] = useState('')
+
+  const handleGenerateSummary = async () => {
+    if (aiSummaryLoading) return
+    setAiSummaryLoading(true)
+    setAiSummaryError('')
+    try {
+      const summary = await getProductSummary(product)
+      setAiSummary(summary)
+    } catch (err) {
+      console.error(err)
+      setAiSummaryError('Failed to generate summary. Please try again.')
+    } finally {
+      setAiSummaryLoading(false)
+    }
+  }
 
   const related = products.filter(p => p.id !== id).slice(0, 4)  // 👈 replaces PRODUCTS.filter
 
@@ -201,26 +221,65 @@ export default function ProductDetailPage() {
           <div style={{ maxWidth: 780, animation: 'fadeUp 0.3s ease both' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff0ed', color: 'var(--accent)', fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', padding: '7px 16px', borderRadius: 100, border: '1px solid rgba(255,77,28,0.2)' }}>🤖 &nbsp; AI Generated Summary</span>
-              <button style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: '2px solid var(--border)', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>🔄 &nbsp; Regenerate</button>
+              <button onClick={aiSummary ? handleGenerateSummary : undefined} disabled={aiSummaryLoading}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: '2px solid var(--border)', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: aiSummaryLoading ? 'not-allowed' : 'pointer', opacity: aiSummaryLoading ? 0.6 : 1 }}>
+                {aiSummaryLoading
+                  ? <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg> Generating...</>
+                  : <>🔄 &nbsp; {aiSummary ? 'Regenerate' : 'Generate Summary'}</>
+                }
+              </button>
             </div>
-            <p style={{ fontSize: 15, lineHeight: 1.9, color: '#333', fontWeight: 300, marginBottom: 28, padding: 24, background: 'var(--grey)', borderRadius: 12, borderLeft: '3px solid var(--accent)' }}>
-              The {product.brand} {product.name} is an excellent all-round road running shoe that suits {product.arch.toLowerCase()} runners looking for a reliable daily trainer. Its moderate cushioning strikes a sweet spot — enough protection for longer runs without feeling sluggish underfoot. At {fmt(product.price)} it represents strong value for a premium daily trainer.
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              {[{ label: '✓  Great for', color: '#16a34a', items: ['Neutral arch runners', 'Daily training & high mileage', 'Beginner to advanced', 'Road and light trail'] },
-              { label: '✗  Not ideal for', color: '#dc2626', items: ['Flat feet or overpronation', 'Technical trail running', 'Minimal feel runners', 'Racing or speed work'] }
-              ].map(card => (
-                <div key={card.label} style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: 14, color: card.color }}>{card.label}</div>
-                  {card.items.map(item => (
-                    <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, marginBottom: 10 }}>
-                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: card.color, flexShrink: 0 }} />
-                      {item}
+
+            {!aiSummary && !aiSummaryLoading && (
+              <div style={{ textAlign: 'center', padding: '60px 40px', background: 'var(--grey)', borderRadius: 16, border: '2px dashed var(--border)' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>🤖</div>
+                <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 28, letterSpacing: 1, marginBottom: 8 }}>GET AN AI EXPERT SUMMARY</h3>
+                <p style={{ fontSize: 14, color: 'var(--mid)', marginBottom: 24, maxWidth: 400, margin: '0 auto 24px' }}>Click below to get a personalised expert analysis of this shoe — who it's best for, and who should look elsewhere.</p>
+                <button onClick={handleGenerateSummary}
+                  style={{ background: 'var(--black)', color: 'white', border: 'none', borderRadius: 10, padding: '14px 32px', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 10 }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'var(--black)'}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                  Generate AI Summary
+                </button>
+              </div>
+            )}
+
+            {aiSummaryLoading && (
+              <div style={{ textAlign: 'center', padding: '60px 40px', background: 'var(--grey)', borderRadius: 16 }}>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" style={{ animation: 'spin 1s linear infinite', marginBottom: 16 }}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                <p style={{ fontSize: 14, color: 'var(--mid)', fontWeight: 500 }}>Analysing shoe specs and generating expert summary...</p>
+              </div>
+            )}
+
+            {aiSummaryError && (
+              <p style={{ fontSize: 13, color: 'var(--red)', fontWeight: 500, marginBottom: 16 }}>{aiSummaryError}</p>
+            )}
+
+            {aiSummary && !aiSummaryLoading && (
+              <>
+                <p style={{ fontSize: 15, lineHeight: 1.9, color: '#333', fontWeight: 300, marginBottom: 28, padding: 24, background: 'var(--grey)', borderRadius: 12, borderLeft: '3px solid var(--accent)' }}>
+                  {aiSummary.summary}
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  {[
+                    { label: '✓  Great for', color: '#16a34a', items: aiSummary.greatFor },
+                    { label: '✗  Not ideal for', color: '#dc2626', items: aiSummary.notIdealFor }
+                  ].map(card => (
+                    <div key={card.label} style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: 14, color: card.color }}>{card.label}</div>
+                      {card.items.map(item => (
+                        <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, marginBottom: 10 }}>
+                          <span style={{ width: 7, height: 7, borderRadius: '50%', background: card.color, flexShrink: 0 }} />
+                          {item}
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
         )}
       </div>
