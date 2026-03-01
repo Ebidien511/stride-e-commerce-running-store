@@ -48,3 +48,7 @@ export const decreaseStock = async (items) => {
     await updateDoc(ref, { stock: newStock, status })
   }
 }
+
+export const cancelOrder = async (orderId) => {
+  await updateDoc(doc(db, 'orders', orderId), { status: 'Cancelled' })
+}

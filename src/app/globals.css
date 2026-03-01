@@ -32,3 +32,13 @@ ul { list-style: none; }
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}

@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { getUserData, updateUserData, changePassword } from '@/services/userService'
 import { useWishlist } from '@/hooks/useWishlist'
-import { getUserOrders } from '@/services/orderService'
 import { useCart } from '@/context/CartContext'
 import { useRouter } from 'next/navigation'
+import { getUserOrders, cancelOrder } from '@/services/orderService'
 
 import { useSearchParams } from 'next/navigation'
 
@@ -65,6 +65,7 @@ export default function ProfilePage() {
   const { wishlist, toggleWishlist } = useWishlist()
   const { addItem, openCart } = useCart()
   const router = useRouter()
+  const [selectedOrder, setSelectedOrder] = useState(null)
 
 
 
@@ -256,7 +257,9 @@ export default function ProfilePage() {
                         <div style={{ fontFamily: 'Bebas Neue', fontSize: 22, letterSpacing: 1, marginBottom: 8 }}>
                           R{order.total.toLocaleString('en-ZA')}
                         </div>
-                        <button style={{ fontSize: 12, fontWeight: 600, background: 'none', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer' }}>
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          style={{ fontSize: 12, fontWeight: 600, background: 'none', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer' }}>
                           View Order
                         </button>
                       </div>
@@ -397,6 +400,94 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* ORDER DETAIL MODAL */}
+{selectedOrder && (
+  <div onClick={() => setSelectedOrder(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', animation: 'fadeIn 0.2s ease' }}>
+    <div onClick={e => e.stopPropagation()} style={{ background: 'white', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 680, maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', animation: 'slideUp 0.3s cubic-bezier(0.4,0,0.2,1)' }}>
+      
+      {/* Header */}
+      <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+        <div>
+          <div style={{ fontFamily: 'DM Mono', fontSize: 12, fontWeight: 700, marginBottom: 4 }}>{selectedOrder.id}</div>
+          <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, ...STATUS_COLORS[selectedOrder.status] }}>{selectedOrder.status}</span>
+        </div>
+        <button onClick={() => setSelectedOrder(null)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: 'var(--mid)', lineHeight: 1 }}>✕</button>
+      </div>
+
+      {/* Scrollable content */}
+      <div style={{ overflowY: 'auto', padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+        {/* Items */}
+        <div>
+          <div style={{ fontFamily: 'DM Mono', fontSize: 10, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', marginBottom: 14 }}>Items</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {selectedOrder.items.map((item, i) => (
+              <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ width: 56, height: 56, background: 'var(--grey)', borderRadius: 10, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>
+                  {item.images?.[0] ? <img src={item.images[0]} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '👟'}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 2 }}>{item.brand}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{item.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--mid)' }}>Size: {item.size} · Qty: {item.qty}</div>
+                </div>
+                <div style={{ fontFamily: 'Bebas Neue', fontSize: 20, letterSpacing: 1 }}>R{(item.price * item.qty).toLocaleString('en-ZA')}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Delivery Address */}
+        {selectedOrder.details && (
+          <div>
+            <div style={{ fontFamily: 'DM Mono', fontSize: 10, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', marginBottom: 14 }}>Delivery Address</div>
+            <div style={{ background: 'var(--grey)', borderRadius: 12, padding: '14px 16px', fontSize: 13, lineHeight: 1.7 }}>
+              <div style={{ fontWeight: 600 }}>{selectedOrder.details.firstName} {selectedOrder.details.lastName}</div>
+              <div style={{ color: 'var(--mid)' }}>{selectedOrder.details.street}, {selectedOrder.details.city}</div>
+              <div style={{ color: 'var(--mid)' }}>{selectedOrder.details.province}, {selectedOrder.details.postal}</div>
+              <div style={{ color: 'var(--mid)', marginTop: 4 }}>{selectedOrder.details.phone}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Payment */}
+        <div>
+          <div style={{ fontFamily: 'DM Mono', fontSize: 10, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', marginBottom: 14 }}>Payment</div>
+          <div style={{ background: 'var(--grey)', borderRadius: 12, padding: '14px 16px', fontSize: 13, display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: 'var(--mid)' }}>Payment Method</span>
+            <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{selectedOrder.payMethod || 'Card'}</span>
+          </div>
+        </div>
+
+        {/* Order Total */}
+        <div>
+          <div style={{ fontFamily: 'DM Mono', fontSize: 10, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', marginBottom: 14 }}>Order Summary</div>
+          <div style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
+            {[
+              ['Subtotal', `R${selectedOrder.subtotal?.toLocaleString('en-ZA') || 0}`],
+              ['Delivery', selectedOrder.delivery === 0 ? 'Free' : `R${selectedOrder.delivery?.toLocaleString('en-ZA')}`],
+            ].map(([label, value]) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
+                <span style={{ color: 'var(--mid)' }}>{label}</span>
+                <span>{value}</span>
+              </div>
+            ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 16px', fontSize: 15, fontWeight: 700 }}>
+              <span>Total</span>
+              <span style={{ fontFamily: 'Bebas Neue', fontSize: 22, letterSpacing: 1 }}>R{selectedOrder.total?.toLocaleString('en-ZA')}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Date */}
+        <div style={{ fontSize: 12, color: 'var(--mid)', textAlign: 'center', paddingBottom: 8 }}>
+          Order placed on {new Date(selectedOrder.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </ProtectedRoute>
   )
 }
