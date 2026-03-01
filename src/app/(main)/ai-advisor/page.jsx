@@ -9,6 +9,17 @@ import { getAdvisorRecommendations } from '@/services/aiSearchService'
 
 const QUESTIONS = [
   {
+  id: 'training',
+  question: 'What will you primarily use the shoe for?',
+  sub: 'This helps us match the right shoe construction and support for your activity.',
+  options: [
+    { value: 'daily_training', label: 'Daily Training', desc: 'Regular runs, building base mileage', icon: '🏃' },
+    { value: 'long_distance', label: 'Long Distance', desc: 'Half marathons, marathons, ultras', icon: '🛣️' },
+    { value: 'speed_work', label: 'Speed & Racing', desc: 'Intervals, tempo runs, races', icon: '⚡' },
+    { value: 'gym_cross', label: 'Gym & Cross Training', desc: 'Mixed workouts, strength + cardio', icon: '🏋️' },
+  ],
+},
+  {
     id: 'arch',
     question: 'What is your arch type?',
     sub: 'If you\'re unsure, wet your foot and step on paper — a full imprint means flat feet.',
@@ -95,6 +106,7 @@ export default function AIAdvisorPage() {
         if (user) {
           const existingData = await getUserData(user.uid)
           await saveRunningProfile(user.uid, {
+            training: newAnswers.training,
             arch: newAnswers.arch === 'neutral' ? 'Neutral' : newAnswers.arch === 'flat' ? 'Flat Feet' : newAnswers.arch === 'high' ? 'High Arch' : 'Neutral',
             terrain: newAnswers.terrain === 'road' ? 'Road' : newAnswers.terrain === 'trail' ? 'Trail' : newAnswers.terrain === 'treadmill' ? 'Treadmill' : 'Mixed',
             experience: newAnswers.experience,
@@ -160,11 +172,11 @@ export default function AIAdvisorPage() {
 </div>        <p style={{ fontFamily: 'DM Mono', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 16 }}>AI-Powered</p>
         <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(48px,6vw,80px)', letterSpacing: 2, lineHeight: 0.95, marginBottom: 24, color: 'white' }}>YOUR PERSONAL<br />SHOE ADVISOR</h1>
         <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, fontWeight: 300, maxWidth: 500, margin: '0 auto 48px' }}>
-          Answer 5 quick questions about your foot type, running style, and goals. Our AI will recommend the perfect shoes for you — no running store visit needed.
+          Answer 6 quick questions about your foot type, running style, and goals. Our AI will recommend the perfect shoes for you — no running store visit needed.
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 48 }}>
-          {[['5 questions', 'Takes under 2 minutes'], ['AI matching', 'Based on your profile'], ['Free advice', 'No account needed']].map(([t, s]) => (
+          {[['6 questions', 'Takes under 2 minutes'], ['AI matching', 'Based on your profile'], ['Free advice', 'No account needed']].map(([t, s]) => (
             <div key={t} style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', borderRadius: 12, padding: '20px 16px', border: '1px solid rgba(255,255,255,0.15)' }}>
               <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, color: 'white' }}>{t}</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{s}</div>

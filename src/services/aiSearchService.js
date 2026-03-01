@@ -1,6 +1,10 @@
+
+const AI_MODEL='gemini-2.5-flash-lite'
+
+
 export const aiSearch = async (prompt, products) => {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
+    `https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -49,7 +53,7 @@ export const analyseImage = async (file, products) => {
   const mimeType = file.type
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -90,7 +94,7 @@ ${JSON.stringify(products.map(p => ({
 
 export const getProductSummary = async (product) => {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -131,7 +135,7 @@ ${JSON.stringify({
 
 export const getAdvisorRecommendations = async (answers, products) => {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -159,6 +163,44 @@ ${JSON.stringify(products.map(p => ({
               price: p.price,
               drop: p.drop,
               weight: p.weight,
+              description: p.description,
+            })), null, 2)}`
+          }]
+        }]
+      })
+    }
+  )
+  const data = await response.json()
+  const text = data.candidates[0].content.parts[0].text.trim()
+  const clean = text.replace(/```json|```/g, '').trim()
+  return JSON.parse(clean)
+}
+
+export const getPersonalisedRecommendations = async (runProfile, products) => {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `You are a running shoe expert for STRIDE, a South African running shoe store.
+Based on this customer's running profile, recommend the 4 best matching products.
+Return ONLY a JSON array of product IDs, no other text. Example: ["id1", "id2", "id3", "id4"]
+
+Customer running profile:
+${JSON.stringify(runProfile)}
+
+Available products:
+${JSON.stringify(products.map(p => ({
+              id: p.id,
+              brand: p.brand,
+              name: p.name,
+              category: p.category,
+              arch: p.arch,
+              terrain: p.terrain,
+              price: p.price,
               description: p.description,
             })), null, 2)}`
           }]
