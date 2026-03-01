@@ -80,98 +80,98 @@ export default function HomePage() {
     <>
       {/* HERO */}
       {/* HERO */}
-{/* HERO */}
-<section style={{ ...S.hero, position: 'relative', overflow: 'hidden' }}>
+      {/* HERO */}
+      <section style={{ ...S.hero, position: 'relative', overflow: 'hidden' }}>
 
-  {/* VIDEO BACKGROUND */}
-  <video
-    autoPlay
-    muted
-    loop
-    playsInline
-    style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      zIndex: 0,
-    }}
-  >
-    <source
-      src="https://res.cloudinary.com/dytwnm405/video/upload/v1772366318/From_KlickPin_CF_Running_vibe_Running_motivation_Gym_workouts_Fitness_motivation_a2kczo.mp4"
-      type="video/mp4"
-    />
-  </video>
-
-  {/* OVERLAY */}
-  <div style={{
-    position: 'absolute',
-    inset: 0,
-    background: 'rgba(0, 0, 0, 0.45)',
-    zIndex: 1,
-  }} />
-
-  {/* HERO CONTENT */}
-  <div style={{ ...S.heroLeft, position: 'relative', zIndex: 2, background: 'transparent' }}>
-    <p style={{ ...S.eyebrow, color: 'var(--accent)', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
-      🔥 New Season Collection — 2026
-    </p>
-    <h1 style={{ ...S.heroTitle, color: 'white', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
-      FIND<br />YOUR<br />
-      <span style={{ WebkitTextStroke: '2px white', color: 'transparent' }}>PERFECT</span>
-      <br />RUN
-    </h1>
-    <p style={{ ...S.heroSub, color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
-      Describe what you're looking for and our AI will find your perfect shoe.
-    </p>
-
-    <div style={{ marginBottom: 40 }}>
-      <div style={{ background: 'rgba(255,255,255,0.95)', border: '2px solid var(--border)', borderRadius: 12, padding: '4px 4px 4px 20px', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
-        <span style={{ fontSize: 18 }}>🤖</span>
-        <input
-          value={aiPrompt}
-          onChange={e => setAiPrompt(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleAiSearch()}
-          placeholder="e.g. trail shoes under R2000 with neutral arch..."
-          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontFamily: 'DM Sans', background: 'transparent', padding: '12px 0' }}
-        />
-        <button onClick={handleAiSearch} disabled={aiLoading || !aiPrompt.trim()}
-          style={{ background: aiLoading ? 'var(--mid)' : 'var(--black)', color: 'white', border: 'none', borderRadius: 8, padding: '12px 20px', fontSize: 13, fontWeight: 700, cursor: aiLoading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 8 }}
-          onMouseEnter={e => { if (!aiLoading) e.currentTarget.style.background = 'var(--accent)' }}
-          onMouseLeave={e => { if (!aiLoading) e.currentTarget.style.background = 'var(--black)' }}
+        {/* VIDEO BACKGROUND */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+          }}
         >
-          {aiLoading ? <>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
-            Searching...
-          </> : <>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-            Find My Shoe
-          </>}
-        </button>
-      </div>
-      {aiError && <p style={{ fontSize: 12, color: '#ff6b6b', marginTop: 8, fontWeight: 500 }}>{aiError}</p>}
-      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 10, fontFamily: 'DM Mono' }}>
-        Try: "lightweight road shoe for marathons" · "stable trail shoe under R2500"
-      </p>
-    </div>
+          <source
+            src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/v1772366318/From_KlickPin_CF_Running_vibe_Running_motivation_Gym_workouts_Fitness_motivation_a2kczo.mp4`}
+            type="video/mp4"
+          />
+        </video>
 
-    <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 64 }}>
-      <Link href="/products" style={S.btnPrimary}>Browse All Shoes</Link>
-    </div>
+        {/* OVERLAY */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.45)',
+          zIndex: 1,
+        }} />
 
-    <div style={{ display: 'flex', gap: 40 }}>
-      {[['200+', 'Models'], ['15K+', 'Runners Matched'], ['98%', 'Satisfaction']].map(([n, l]) => (
-        <div key={l}>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 1, color: 'white', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{n}</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: 1 }}>{l}</div>
+        {/* HERO CONTENT */}
+        <div style={{ ...S.heroLeft, position: 'relative', zIndex: 2, background: 'transparent' }}>
+          <p style={{ ...S.eyebrow, color: 'var(--accent)', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
+            🔥 New Season Collection — 2026
+          </p>
+          <h1 style={{ ...S.heroTitle, color: 'white', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
+            FIND<br />YOUR<br />
+            <span style={{ WebkitTextStroke: '2px white', color: 'transparent' }}>PERFECT</span>
+            <br />RUN
+          </h1>
+          <p style={{ ...S.heroSub, color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
+            Describe what you're looking for and our AI will find your perfect shoe.
+          </p>
+
+          <div style={{ marginBottom: 40 }}>
+            <div style={{ background: 'rgba(255,255,255,0.95)', border: '2px solid var(--border)', borderRadius: 12, padding: '4px 4px 4px 20px', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+              <span style={{ fontSize: 18 }}>🤖</span>
+              <input
+                value={aiPrompt}
+                onChange={e => setAiPrompt(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAiSearch()}
+                placeholder="e.g. trail shoes under R2000 with neutral arch..."
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontFamily: 'DM Sans', background: 'transparent', padding: '12px 0' }}
+              />
+              <button onClick={handleAiSearch} disabled={aiLoading || !aiPrompt.trim()}
+                style={{ background: aiLoading ? 'var(--mid)' : 'var(--black)', color: 'white', border: 'none', borderRadius: 8, padding: '12px 20px', fontSize: 13, fontWeight: 700, cursor: aiLoading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 8 }}
+                onMouseEnter={e => { if (!aiLoading) e.currentTarget.style.background = 'var(--accent)' }}
+                onMouseLeave={e => { if (!aiLoading) e.currentTarget.style.background = 'var(--black)' }}
+              >
+                {aiLoading ? <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                  Searching...
+                </> : <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                  Find My Shoe
+                </>}
+              </button>
+            </div>
+            {aiError && <p style={{ fontSize: 12, color: '#ff6b6b', marginTop: 8, fontWeight: 500 }}>{aiError}</p>}
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 10, fontFamily: 'DM Mono' }}>
+              Try: "lightweight road shoe for marathons" · "stable trail shoe under R2500"
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 64 }}>
+            <Link href="/products" style={S.btnPrimary}>Browse All Shoes</Link>
+          </div>
+
+          <div style={{ display: 'flex', gap: 40 }}>
+            {[['200+', 'Models'], ['15K+', 'Runners Matched'], ['98%', 'Satisfaction']].map(([n, l]) => (
+              <div key={l}>
+                <div style={{ fontFamily: 'Bebas Neue', fontSize: 36, letterSpacing: 1, color: 'white', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{n}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: 1 }}>{l}</div>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
 
-</section>
+      </section>
 
       {/* FEATURE CARDS */}
       <section style={{ padding: '0 48px', marginTop: -32, position: 'relative', zIndex: 10 }}>
