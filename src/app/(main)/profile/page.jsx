@@ -19,6 +19,30 @@ const STATUS_COLORS = {
   Cancelled: { bg: '#fee2e2', color: '#991b1b' },
 }
 
+const PackageIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+    <path d="M440-183v-274L200-596v274l240 139Zm80 0 240-139v-274L520-457v274Zm-80 92L160-252q-19-11-29.5-29T120-321v-318q0-22 10.5-40t29.5-29l280-161q19-11 40-11t40 11l280 161q19 11 29.5 29t10.5 40v318q0 22-10.5 40T800-252L520-91q-19 11-40 11t-40-11Zm200-528 77-44-237-137-78 45 238 136Zm-160 93 78-45-237-137-78 45 237 137Z" />
+  </svg>
+)
+
+const FavoriteIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+    <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
+  </svg>
+)
+
+const SettingsIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+    <path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" />
+  </svg>
+)
+
+const BoxAddIcon = ({ size = 24 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" height={size} viewBox="0 -960 960 960" width={size} fill="currentColor">
+    <path d="M640-640h120-120Zm-440 0h338-18 14-334Zm16-80h528l-34-40H250l-34 40Zm184 270 80-40 80 40v-190H400v190Zm182 330H200q-33 0-56.5-23.5T120-200v-499q0-14 4.5-27t13.5-24l50-61q11-14 27.5-21.5T250-840h460q18 0 34.5 7.5T772-811l50 61q9 11 13.5 24t4.5 27v196q-19-7-39-11t-41-4v-122H640v153q-35 20-61 49.5T538-371l-58-29-160 80v-320H200v440h334q8 23 20 43t28 37Zm138 0v-120H600v-80h120v-120h80v120h120v80H800v120h-80Z" />
+  </svg>
+)
+
 function Label({ children }) {
   return <div style={{ fontFamily: 'DM Mono', fontSize: 10, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--mid)', fontWeight: 600, marginBottom: 6 }}>{children}</div>
 }
@@ -169,9 +193,9 @@ export default function ProfilePage() {
   const Err = ({ msg }) => msg ? <div style={{ fontSize: 11, color: 'var(--red)', fontWeight: 500, marginTop: 5 }}>{msg}</div> : null
 
   const TABS = [
-    { id: 'orders', label: 'My Orders', icon: '📦' },
-    { id: 'wishlist', label: 'Wishlist', icon: '♡' },
-    { id: 'settings', label: 'Account Settings', icon: '⚙️' },
+    { id: 'orders', label: 'My Orders', icon: <PackageIcon /> },
+    { id: 'wishlist', label: 'Wishlist', icon: <FavoriteIcon /> },
+    { id: 'settings', label: 'Account Settings', icon: <SettingsIcon /> },
   ]
 
   return (
@@ -209,7 +233,9 @@ export default function ProfilePage() {
                 </div>
                 {orders.length === 0
                   ? <div style={{ padding: 48, textAlign: 'center', color: 'var(--mid)', fontSize: 14 }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>📦</div>
+                    <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
+                      <BoxAddIcon size={40} />
+                    </div>
                     You haven't placed any orders yet.
                   </div>
                   : orders.map(order => (
@@ -248,7 +274,9 @@ export default function ProfilePage() {
                 </div>
                 {wishlist.length === 0
                   ? <div style={{ padding: 48, textAlign: 'center', color: 'var(--mid)', fontSize: 14 }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>♡</div>
+                    <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
+                      <FavoriteIcon style={{ width: 40, height: 40 }} />
+                    </div>
                     Your wishlist is empty. Heart a product to save it here.
                   </div>
                   : wishlist.map(item => (
