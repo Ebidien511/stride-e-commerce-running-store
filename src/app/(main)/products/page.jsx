@@ -7,7 +7,7 @@ import { useProducts } from '@/hooks/useProducts'
 
 const PILLS = ['All', 'Road', 'Trail', 'Track', 'Gym']
 const ARCH_TYPES = ['Neutral', 'Stability', 'Motion Control']
-const BRANDS = ['Nike', 'ASICS', 'Brooks', 'Hoka', 'Adidas', 'New Balance', 'On Running', 'Saucony']
+const BRANDS = ['Nike', 'ASICS', 'Brooks', 'Hoka', 'Adidas', 'New Balance', 'Puma', 'Saucony']
 
 function ProductsContent() {
   const { products, loading, error } = useProducts()  // 👈 add this
