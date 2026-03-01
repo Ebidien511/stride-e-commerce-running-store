@@ -1,12 +1,12 @@
 export const aiSearch = async (prompt, products) => {
-    const response = await fetch(
-`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,{
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{
-                parts: [{
-                    text: `You are a running shoe expert for STRIDE, a South African running shoe store.
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{
+          text: `You are a running shoe expert for STRIDE, a South African running shoe store.
 Given a customer's natural language request and a list of products, return ONLY a JSON array of product IDs ranked from best to worst match.
 Return ONLY the JSON array, no other text. Example: ["nike-pegasus-40", "hoka-clifton-9"]
 
@@ -14,28 +14,28 @@ Customer request: "${prompt}"
 
 Available products:
 ${JSON.stringify(products.map(p => ({
-                        id: p.id,
-                        brand: p.brand,
-                        name: p.name,
-                        category: p.category,
-                        arch: p.arch,
-                        terrain: p.terrain,
-                        price: p.price,
-                        drop: p.drop,
-                        weight: p.weight,
-                        description: p.description,
-                    })), null, 2)}`
-                }]
-            }]
-        })
-    }
-    )
+            id: p.id,
+            brand: p.brand,
+            name: p.name,
+            category: p.category,
+            arch: p.arch,
+            terrain: p.terrain,
+            price: p.price,
+            drop: p.drop,
+            weight: p.weight,
+            description: p.description,
+          })), null, 2)}`
+        }]
+      }]
+    })
+  }
+  )
 
-    const data = await response.json()
-    console.log('Gemini response:', JSON.stringify(data, null, 2))
-    const text = data.candidates[0].content.parts[0].text.trim()
-    const clean = text.replace(/```json|```/g, '').trim()
-    return JSON.parse(clean)
+  const data = await response.json()
+  console.log('Gemini response:', JSON.stringify(data, null, 2))
+  const text = data.candidates[0].content.parts[0].text.trim()
+  const clean = text.replace(/```json|```/g, '').trim()
+  return JSON.parse(clean)
 }
 
 export const analyseImage = async (file, products) => {
@@ -49,7 +49,7 @@ export const analyseImage = async (file, products) => {
   const mimeType = file.type
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -66,15 +66,15 @@ Return ONLY the JSON object, no other text.
 
 Available products:
 ${JSON.stringify(products.map(p => ({
-  id: p.id,
-  brand: p.brand,
-  name: p.name,
-  category: p.category,
-  arch: p.arch,
-  terrain: p.terrain,
-  price: p.price,
-  description: p.description,
-})), null, 2)}`
+                id: p.id,
+                brand: p.brand,
+                name: p.name,
+                category: p.category,
+                arch: p.arch,
+                terrain: p.terrain,
+                price: p.price,
+                description: p.description,
+              })), null, 2)}`
             }
           ]
         }]
@@ -90,7 +90,7 @@ ${JSON.stringify(products.map(p => ({
 
 export const getProductSummary = async (product) => {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -107,17 +107,60 @@ Generate a summary for this product and return ONLY a JSON object, no other text
 
 Product:
 ${JSON.stringify({
-  brand: product.brand,
-  name: product.name,
-  category: product.category,
-  arch: product.arch,
-  terrain: product.terrain,
-  drop: product.drop,
-  weight: product.weight,
-  price: product.price,
-  description: product.description,
-  features: product.features,
-})}`
+              brand: product.brand,
+              name: product.name,
+              category: product.category,
+              arch: product.arch,
+              terrain: product.terrain,
+              drop: product.drop,
+              weight: product.weight,
+              price: product.price,
+              description: product.description,
+              features: product.features,
+            })}`
+          }]
+        }]
+      })
+    }
+  )
+  const data = await response.json()
+  const text = data.candidates[0].content.parts[0].text.trim()
+  const clean = text.replace(/```json|```/g, '').trim()
+  return JSON.parse(clean)
+}
+
+export const getAdvisorRecommendations = async (answers, products) => {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `You are a running shoe expert for STRIDE, a South African running shoe store.
+A customer has completed a running profile quiz. Based on their answers, recommend the best matching products.
+Return ONLY a JSON array of objects, no other text:
+[{"id": "product-id", "matchScore": 95, "matchReason": "Best Match", "reasoning": "one sentence why this shoe fits them"}]
+
+Return maximum 3 products ranked best to worst match. matchReason should be one of: "Best Match", "Great Alternative", "Budget Pick".
+
+Customer profile:
+${JSON.stringify(answers)}
+
+Available products:
+${JSON.stringify(products.map(p => ({
+              id: p.id,
+              brand: p.brand,
+              name: p.name,
+              category: p.category,
+              arch: p.arch,
+              terrain: p.terrain,
+              price: p.price,
+              drop: p.drop,
+              weight: p.weight,
+              description: p.description,
+            })), null, 2)}`
           }]
         }]
       })

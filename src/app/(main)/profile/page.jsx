@@ -90,6 +90,9 @@ export default function ProfilePage() {
             arch: data.runProfile?.arch || 'Neutral',
             terrain: data.runProfile?.terrain || 'Road',
             size: data.runProfile?.size || 'UK 8',
+            experience: data.runProfile?.experience || '',
+            cushion: data.runProfile?.cushion || '',
+            budget: data.runProfile?.budget || '',
           })
         }
         const userOrders = await getUserOrders(user.uid)

@@ -24,3 +24,7 @@ export const getCustomerCount = async () => {
   const snap = await getCountFromServer(collection(db, 'users'))
   return snap.data().count
 }
+
+export const saveRunningProfile = async (uid, profile) => {
+  await updateDoc(doc(db, 'users', uid), { runProfile: profile })
+}
