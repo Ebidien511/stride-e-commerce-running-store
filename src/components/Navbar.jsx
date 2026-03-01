@@ -129,9 +129,7 @@ export default function Navbar({ onSearchToggle, searchOpen }) {
                 {/* Menu items */}
                 {[
                   ...(role === 'admin' ? [['📊', 'Admin Panel', '/admin']] : []),
-                  ['👤', 'My Profile', '/profile'],
-                  ['📦', 'My Orders', '/orders'],
-                  ['❤️', 'Wishlist', '/wishlist'],
+                  ['👤', 'My Profile', '/profile']
                 ].map(([icon, label, href]) => (
                   <Link key={href} href={href} onClick={() => setDropdownOpen(false)}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', fontSize: 13, fontWeight: 500, color: 'var(--black)', borderBottom: '1px solid var(--border)', transition: 'background 0.15s' }}

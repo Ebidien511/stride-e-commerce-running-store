@@ -136,47 +136,49 @@ export default function AIAdvisorPage() {
   }
 
   const recommendations = phase === 'results' ? aiRecommendations : []
-// ── INTRO ──
-if (phase === 'intro') return (
-  <div style={{ minHeight: 'calc(100vh - var(--nav-h))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 48px', position: 'relative', overflow: 'hidden' }}>
+  // ── INTRO ──
+  if (phase === 'intro') return (
+    <div style={{ minHeight: 'calc(100vh - var(--nav-h))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 48px', position: 'relative', overflow: 'hidden' }}>
 
-    {/* VIDEO BACKGROUND */}
-    <video autoPlay muted loop playsInline
-      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}>
-      <source src="https://res.cloudinary.com/dytwnm405/video/upload/v1772367965/From_KlickPin_CF_Craft_Sportswear_US_on_Instagram_Turn_your_miles_2_smiles_Long-distance_running_is_more_than_just_a_sport_it_s_a_journey_of_self-discovery_and_resilience_w_Video_Video_Running_Running_photography_Long_distance_running_paurvx.mp4" type="video/mp4" />
-    </video>
+      {/* VIDEO BACKGROUND */}
+      <video autoPlay muted loop playsInline
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}>
+        <source
+          src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/v1772367965/From_KlickPin_CF_Craft_Sportswear_US_on_Instagram_Turn_your_miles_2_smiles_Long-distance_running_is_more_than_just_a_sport_it_s_a_journey_of_self-discovery_and_resilience_w_Video_Video_Running_Running_photography_Long_distance_running_paurvx.mp4`}
+          type="video/mp4"
+        />    </video>
 
-    {/* OVERLAY */}
-    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1 }} />
+      {/* OVERLAY */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1 }} />
 
-    {/* CONTENT */}
-    <div style={{ maxWidth: 680, textAlign: 'center', position: 'relative', zIndex: 2 }}>
-      <div style={{ width: 80, height: 80, background: 'var(--accent)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, margin: '0 auto 32px' }}>🤖</div>
-      <p style={{ fontFamily: 'DM Mono', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 16 }}>AI-Powered</p>
-      <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(48px,6vw,80px)', letterSpacing: 2, lineHeight: 0.95, marginBottom: 24, color: 'white' }}>YOUR PERSONAL<br />SHOE ADVISOR</h1>
-      <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, fontWeight: 300, maxWidth: 500, margin: '0 auto 48px' }}>
-        Answer 5 quick questions about your foot type, running style, and goals. Our AI will recommend the perfect shoes for you — no running store visit needed.
-      </p>
+      {/* CONTENT */}
+      <div style={{ maxWidth: 680, textAlign: 'center', position: 'relative', zIndex: 2 }}>
+        <div style={{ width: 80, height: 80, background: 'var(--accent)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, margin: '0 auto 32px' }}>🤖</div>
+        <p style={{ fontFamily: 'DM Mono', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 16 }}>AI-Powered</p>
+        <h1 style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(48px,6vw,80px)', letterSpacing: 2, lineHeight: 0.95, marginBottom: 24, color: 'white' }}>YOUR PERSONAL<br />SHOE ADVISOR</h1>
+        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, fontWeight: 300, maxWidth: 500, margin: '0 auto 48px' }}>
+          Answer 5 quick questions about your foot type, running style, and goals. Our AI will recommend the perfect shoes for you — no running store visit needed.
+        </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 48 }}>
-        {[['5 questions', 'Takes under 2 minutes'], ['AI matching', 'Based on your profile'], ['Free advice', 'No account needed']].map(([t, s]) => (
-          <div key={t} style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', borderRadius: 12, padding: '20px 16px', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, color: 'white' }}>{t}</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{s}</div>
-          </div>
-        ))}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 48 }}>
+          {[['5 questions', 'Takes under 2 minutes'], ['AI matching', 'Based on your profile'], ['Free advice', 'No account needed']].map(([t, s]) => (
+            <div key={t} style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', borderRadius: 12, padding: '20px 16px', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, color: 'white' }}>{t}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{s}</div>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={() => setPhase('quiz')}
+          style={{ background: 'var(--accent)', color: 'white', border: 'none', padding: '18px 48px', borderRadius: 4, fontSize: 16, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.5px', transition: 'all 0.2s' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+        >
+          Start Free Consultation →
+        </button>
       </div>
-
-      <button onClick={() => setPhase('quiz')}
-        style={{ background: 'var(--accent)', color: 'white', border: 'none', padding: '18px 48px', borderRadius: 4, fontSize: 16, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.5px', transition: 'all 0.2s' }}
-        onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-      >
-        Start Free Consultation →
-      </button>
     </div>
-  </div>
-)
+  )
 
   // ── QUIZ ──
   if (phase === 'quiz') return (
