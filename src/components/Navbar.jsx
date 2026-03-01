@@ -128,15 +128,25 @@ export default function Navbar({ onSearchToggle, searchOpen }) {
 
                 {/* Menu items */}
                 {[
-                  ...(role === 'admin' ? [['📊', 'Admin Panel', '/admin']] : []),
-                  ['👤', 'My Profile', '/profile']
+                  ...(role === 'admin' ? [[
+                    <svg height="16" width="16" viewBox="0 -960 960 960" style={{ color: 'currentcolor' }}>
+                      <path d="M722.5-297.5Q740-315 740-340t-17.5-42.5Q705-400 680-400t-42.5 17.5Q620-365 620-340t17.5 42.5Q655-280 680-280t42.5-17.5ZM680-160q31 0 57-14.5t42-38.5q-22-13-47-20t-52-7q-27 0-52 7t-47 20q16 24 42 38.5t57 14.5ZM480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v227q-19-8-39-14.5t-41-9.5v-147l-240-90-240 90v188q0 47 12.5 94t35 89.5Q310-290 342-254t71 60q11 32 29 61t41 52q-1 0-1.5.5t-1.5.5Zm200 0q-83 0-141.5-58.5T480-280q0-83 58.5-141.5T680-480q83 0 141.5 58.5T880-280q0 83-58.5 141.5T680-80ZM480-494Z" fill="currentColor" />
+                    </svg>,
+                    'Admin Panel', '/admin'
+                  ]] : []),
+                  [
+                    <svg height="16" width="16" viewBox="0 -960 960 960" style={{ color: 'currentcolor' }}>
+                      <path d="m216-160-56-56 384-384H440v80h-80v-160h233q16 0 31 6t26 17l120 119q27 27 66 42t84 16v80q-62 0-112.5-19T718-476l-40-42-88 88 90 90-262 151-40-69 172-99-68-68-266 265Zm-96-280v-80h200v80H120ZM40-560v-80h200v80H40Zm739-80q-33 0-57-23.5T698-720q0-33 24-56.5t57-23.5q33 0 57 23.5t24 56.5q0 33-24 56.5T779-640Zm-659-40v-80h200v80H120Z" fill="currentColor" />
+                    </svg>,
+                    'My Profile', '/profile'
+                  ]
                 ].map(([icon, label, href]) => (
                   <Link key={href} href={href} onClick={() => setDropdownOpen(false)}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', fontSize: 13, fontWeight: 500, color: 'var(--black)', borderBottom: '1px solid var(--border)', transition: 'background 0.15s' }}
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--grey)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'white'}
                   >
-                    <span>{icon}</span>{label}
+                    {icon}{label}
                   </Link>
                 ))}
 
@@ -146,7 +156,10 @@ export default function Navbar({ onSearchToggle, searchOpen }) {
                   onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
                 >
-                  <span>🚪</span> Sign Out
+                  <svg height="16" width="16" viewBox="0 -960 960 960" style={{ color: 'currentcolor' }}>
+                    <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" fill="currentColor" />
+                  </svg>
+                  Sign Out
                 </button>
               </div>
             )}

@@ -55,21 +55,21 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(2)
 
   useEffect(() => {
-  if (!user) return
-  getUserData(user.uid).then(data => {
-    if (!data) return
-    setDetails({
-      firstName: data.firstName || '',
-      lastName: data.lastName || '',
-      email: data.email || user.email || '',
-      phone: data.phone || '',
-      street: data.address?.street || '',
-      city: data.address?.city || '',
-      province: data.address?.province || '',
-      postal: data.address?.postal || '',
+    if (!user) return
+    getUserData(user.uid).then(data => {
+      if (!data) return
+      setDetails({
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        email: data.email || user.email || '',
+        phone: data.phone || '',
+        street: data.address?.street || '',
+        city: data.address?.city || '',
+        province: data.address?.province || '',
+        postal: data.address?.postal || '',
+      })
     })
-  })
-}, [user])
+  }, [user])
 
   // Step 2 — Details
   const [details, setDetails] = useState({ firstName: '', lastName: '', email: '', phone: '', street: '', city: '', province: '', postal: '' })
@@ -114,25 +114,25 @@ export default function CheckoutPage() {
   const goToPayment = () => { if (validateDetails()) setStep(3) }
 
   const placeOrder = async () => {
-  if (!validateCard()) return
-  try {
-    const orderId = await placeOrderService({
-      uid: user.uid,
-      items,
-      details,
-      payMethod,
-      subtotal,
-      delivery,
-      total,
-    })
-    await decreaseStock(items)  // 👈 add this
-    setOrderNum(orderId)
-    clearCart()
-    setStep(4)
-  } catch (err) {
-    console.error('Order failed:', err)
+    if (!validateCard()) return
+    try {
+      const orderId = await placeOrderService({
+        uid: user.uid,
+        items,
+        details,
+        payMethod,
+        subtotal,
+        delivery,
+        total,
+      })
+      await decreaseStock(items)  // 👈 add this
+      setOrderNum(orderId)
+      clearCart()
+      setStep(4)
+    } catch (err) {
+      console.error('Order failed:', err)
+    }
   }
-}
 
   const inputStyle = (err) => ({ width: '100%', border: `1.5px solid ${err ? 'var(--red)' : 'var(--border)'}`, borderRadius: 8, padding: '11px 14px', fontSize: 14, fontFamily: 'DM Sans', outline: 'none', background: 'white', color: 'var(--black)', boxShadow: err ? '0 0 0 3px rgba(220,38,38,0.08)' : 'none' })
 
@@ -354,9 +354,19 @@ export default function CheckoutPage() {
                 <p style={{ color: 'var(--mid)', fontSize: 13, marginBottom: 32 }}>A confirmation email has been sent to {details.email || 'your inbox'}.</p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 32 }}>
-                  {[['📦', 'Processing', 'Your order is being prepared'], ['🚚', 'Est. Delivery', '3–5 business days'], ['✅', 'Guaranteed', '100% authentic products']].map(([icon, title, sub]) => (
+                  {[
+                    [<svg height="28" width="28" viewBox="0 -960 960 960" style={{ color: 'var(--accent)' }}>
+                      <path d="M440-183v-274L200-596v274l240 139Zm80 0 240-139v-274L520-457v274Zm-80 92L160-252q-19-11-29.5-29T120-321v-318q0-22 10.5-40t29.5-29l280-161q19-11 40-11t40 11l280 161q19 11 29.5 29t10.5 40v318q0 22-10.5 40T800-252L520-91q-19 11-40 11t-40-11Zm200-528 77-44-237-137-78 45 238 136Zm-160 93 78-45-237-137-78 45 237 137Z" fill="currentColor" />
+                    </svg>, 'Processing', 'Your order is being prepared'],
+                    [<svg height="28" width="28" viewBox="0 -960 960 960" style={{ color: 'var(--accent)' }}>
+                      <path d="M195-195q-35-35-35-85H60l18-80h113q17-19 40-29.5t49-10.5q26 0 49 10.5t40 29.5h167l84-360H182l4-17q6-28 27.5-45.5T264-800h456l-37 160h117l120 160-40 200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H400q0 50-35 85t-85 35q-50 0-85-35Zm442-245h193l4-21-74-99h-95l-28 120Zm-19-273 2-7-84 360 2-7 34-146 46-200ZM20-427l20-80h220l-20 80H20Zm80-146 20-80h260l-20 80H100Zm180 333q17 0 28.5-11.5T320-280q0-17-11.5-28.5T280-320q-17 0-28.5 11.5T240-280q0 17 11.5 28.5T280-240Zm400 0q17 0 28.5-11.5T720-280q0-17-11.5-28.5T680-320q-17 0-28.5 11.5T640-280q0 17 11.5 28.5T680-240Z" fill="currentColor" />
+                    </svg>, 'Est. Delivery', '3–5 business days'],
+                    [<svg height="28" width="28" viewBox="0 -960 960 960" style={{ color: 'var(--accent)' }}>
+                      <path d="m424-296 282-282-56-56-226 226-114-114-56 56 170 170Zm56 216q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" fill="currentColor" />
+                    </svg>, 'Guaranteed', '100% authentic products'],
+                  ].map(([icon, title, sub]) => (
                     <div key={title} style={{ padding: 20, background: 'var(--grey)', borderRadius: 12, textAlign: 'center' }}>
-                      <div style={{ fontSize: 28, marginBottom: 8 }}>{icon}</div>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>{icon}</div>
                       <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{title}</div>
                       <div style={{ fontSize: 11, color: 'var(--mid)' }}>{sub}</div>
                     </div>

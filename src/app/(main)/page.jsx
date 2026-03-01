@@ -129,8 +129,9 @@ export default function HomePage() {
 
           <div style={{ marginBottom: 40 }}>
             <div style={{ background: 'rgba(255,255,255,0.95)', border: '2px solid var(--border)', borderRadius: 12, padding: '4px 4px 4px 20px', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
-              <span style={{ fontSize: 18 }}>🤖</span>
-              <input
+<svg height="18" width="18" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--mid)', flexShrink: 0 }}>
+  <path fillRule="evenodd" clipRule="evenodd" d="M8.75 2.79933C9.19835 2.53997 9.5 2.05521 9.5 1.5C9.5 0.671573 8.82843 0 8 0C7.17157 0 6.5 0.671573 6.5 1.5C6.5 2.05521 6.80165 2.53997 7.25 2.79933V5H7C4.027 5 1.55904 7.16229 1.08296 10H0V13H1V14.5V16H2.5H13.5H15V14.5V13H16V10H14.917C14.441 7.16229 11.973 5 9 5H8.75V2.79933ZM7 6.5C4.51472 6.5 2.5 8.51472 2.5 11V14.5H13.5V11C13.5 8.51472 11.4853 6.5 9 6.5H7ZM7.25 11.25C7.25 12.2165 6.4665 13 5.5 13C4.5335 13 3.75 12.2165 3.75 11.25C3.75 10.2835 4.5335 9.5 5.5 9.5C6.4665 9.5 7.25 10.2835 7.25 11.25ZM10.5 13C11.4665 13 12.25 12.2165 12.25 11.25C12.25 10.2835 11.4665 9.5 10.5 9.5C9.5335 9.5 8.75 10.2835 8.75 11.25C8.75 12.2165 9.5335 13 10.5 13Z" fill="currentColor" />
+</svg>              <input
                 value={aiPrompt}
                 onChange={e => setAiPrompt(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAiSearch()}
@@ -177,8 +178,11 @@ export default function HomePage() {
       <section style={{ padding: '0 48px', marginTop: -32, position: 'relative', zIndex: 10 }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16, maxWidth: 860, margin: '0 auto' }}>
           <div style={{ background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 16, padding: 32 }}>
-            <div style={{ width: 48, height: 48, background: 'var(--grey)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, marginBottom: 20 }}>📸</div>
-            <div style={{ fontFamily: 'DM Mono', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 8 }}>Visual Search</div>
+<div style={{ width: 48, height: 48, background: 'var(--grey)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+  <svg height="24" width="24" viewBox="0 0 16 16" style={{ color: 'var(--black)' }}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M1.5 3.5H3.5L5 1H11L12.5 3.5H14.5H16V5V12.5C16 13.8807 14.8807 15 13.5 15H2.5C1.11929 15 0 13.8807 0 12.5V5V3.5H1.5ZM4.78624 4.27174L5.84929 2.5H10.1507L11.2138 4.27174L11.6507 5H12.5H14.5V12.5C14.5 13.0523 14.0523 13.5 13.5 13.5H2.5C1.94772 13.5 1.5 13.0523 1.5 12.5V5H3.5H4.34929L4.78624 4.27174ZM9.75 8.5C9.75 9.4665 8.9665 10.25 8 10.25C7.0335 10.25 6.25 9.4665 6.25 8.5C6.25 7.5335 7.0335 6.75 8 6.75C8.9665 6.75 9.75 7.5335 9.75 8.5ZM11.25 8.5C11.25 10.2949 9.79493 11.75 8 11.75C6.20507 11.75 4.75 10.2949 4.75 8.5C4.75 6.70507 6.20507 5.25 8 5.25C9.79493 5.25 11.25 6.70507 11.25 8.5Z" fill="currentColor" />
+  </svg>
+</div>            <div style={{ fontFamily: 'DM Mono', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 8 }}>Visual Search</div>
             <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 10 }}>Upload a Photo</div>
             <div style={{ fontSize: 13, color: 'var(--mid)', lineHeight: 1.6, fontWeight: 300, marginBottom: 24 }}>See a shoe you love? Upload a picture and we'll find the closest match in our store.</div>
 
@@ -218,8 +222,11 @@ export default function HomePage() {
           </div>
 
           <div style={{ background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 16, padding: 32, cursor: 'pointer' }}>
-            <div style={{ width: 48, height: 48, background: 'var(--grey)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, marginBottom: 20 }}>🤖</div>
-            <div style={{ fontFamily: 'DM Mono', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 8 }}>AI Powered</div>
+<div style={{ width: 48, height: 48, background: 'var(--grey)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+  <svg height="24" width="24" viewBox="0 0 16 16" style={{ color: 'var(--black)' }}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M8.75 2.79933C9.19835 2.53997 9.5 2.05521 9.5 1.5C9.5 0.671573 8.82843 0 8 0C7.17157 0 6.5 0.671573 6.5 1.5C6.5 2.05521 6.80165 2.53997 7.25 2.79933V5H7C4.027 5 1.55904 7.16229 1.08296 10H0V13H1V14.5V16H2.5H13.5H15V14.5V13H16V10H14.917C14.441 7.16229 11.973 5 9 5H8.75V2.79933ZM7 6.5C4.51472 6.5 2.5 8.51472 2.5 11V14.5H13.5V11C13.5 8.51472 11.4853 6.5 9 6.5H7ZM7.25 11.25C7.25 12.2165 6.4665 13 5.5 13C4.5335 13 3.75 12.2165 3.75 11.25C3.75 10.2835 4.5335 9.5 5.5 9.5C6.4665 9.5 7.25 10.2835 7.25 11.25ZM10.5 13C11.4665 13 12.25 12.2165 12.25 11.25C12.25 10.2835 11.4665 9.5 10.5 9.5C9.5335 9.5 8.75 10.2835 8.75 11.25C8.75 12.2165 9.5335 13 10.5 13Z" fill="currentColor" />
+  </svg>
+</div>            <div style={{ fontFamily: 'DM Mono', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 8 }}>AI Powered</div>
             <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 10 }}>Personal Shoe Advisor</div>
             <div style={{ fontSize: 13, color: 'var(--mid)', lineHeight: 1.6, fontWeight: 300, marginBottom: 24 }}>Answer 5 quick questions about your running style and we'll find your perfect match.</div>
             <Link href="/ai-advisor" style={{ display: 'block' }}>
