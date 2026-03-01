@@ -48,13 +48,12 @@ export default function Navbar({ onSearchToggle, searchOpen }) {
       </Link>
 
       <ul style={{ display: 'flex', gap: 36 }}>
-        {[['Shop', '/products'], ['AI Advisor', '/ai-advisor'], ['About', '/#about']].map(([label, href]) => (
-          <li key={href}>
-            <Link href={href} style={{ fontSize: 13, fontWeight: 500, letterSpacing: '0.5px', textTransform: 'uppercase', transition: 'color 0.2s' }}
-              onMouseEnter={e => e.target.style.color = 'var(--accent)'}
-              onMouseLeave={e => e.target.style.color = 'var(--black)'}
-            >{label}</Link>
-          </li>
+        {[['Shop', '/products'], ['AI Advisor', '/ai-advisor'], ['About', '/about'], ['Contact', '/contact']].map(([label, href]) => (<li key={href}>
+          <Link href={href} style={{ fontSize: 13, fontWeight: 500, letterSpacing: '0.5px', textTransform: 'uppercase', transition: 'color 0.2s' }}
+            onMouseEnter={e => e.target.style.color = 'var(--accent)'}
+            onMouseLeave={e => e.target.style.color = 'var(--black)'}
+          >{label}</Link>
+        </li>
         ))}
       </ul>
 

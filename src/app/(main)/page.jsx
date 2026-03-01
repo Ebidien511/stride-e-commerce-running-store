@@ -108,8 +108,6 @@ export default function HomePage() {
   return (
     <>
       {/* HERO */}
-      {/* HERO */}
-      {/* HERO */}
       <section style={{ ...S.hero, position: 'relative', overflow: 'hidden' }}>
 
         {/* VIDEO BACKGROUND */}
@@ -257,7 +255,7 @@ export default function HomePage() {
               </svg>
             </div>            <div style={{ fontFamily: 'DM Mono', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 8 }}>AI Powered</div>
             <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 10 }}>Personal Shoe Advisor</div>
-            <div style={{ fontSize: 13, color: 'var(--mid)', lineHeight: 1.6, fontWeight: 300, marginBottom: 24 }}>Answer 5 quick questions about your running style and we'll find your perfect match.</div>
+            <div style={{ fontSize: 13, color: 'var(--mid)', lineHeight: 1.6, fontWeight: 300, marginBottom: 24 }}>Answer 6 quick questions about your running style and we'll find your perfect match.</div>
             <Link href="/ai-advisor" style={{ display: 'block' }}>
               <button style={{ width: '100%', background: 'var(--black)', color: 'var(--white)', border: 'none', borderRadius: 10, padding: 14, fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
@@ -338,7 +336,7 @@ export default function HomePage() {
         <div>
           <p style={{ fontFamily: 'DM Mono', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 16 }}>✦ Powered by AI</p>
           <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 56, color: 'white', lineHeight: 1, letterSpacing: 2, marginBottom: 16 }}>NOT SURE WHICH<br />SHOE IS RIGHT?</h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', maxWidth: 440, lineHeight: 1.6, fontWeight: 300 }}>Answer 5 quick questions about your foot type, terrain, and running goals. Our AI will recommend the perfect shoe for you.</p>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', maxWidth: 440, lineHeight: 1.6, fontWeight: 300 }}>Answer 6 quick questions about your foot type, terrain, and running goals. Our AI will recommend the perfect shoe for you.</p>
         </div>
         <Link href="/ai-advisor" style={{ background: 'var(--accent)', color: 'white', padding: '18px 40px', borderRadius: 4, fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap', transition: 'all 0.2s', display: 'inline-block' }}>
           Start Free Consultation →
