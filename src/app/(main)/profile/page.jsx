@@ -1,15 +1,15 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { getUserData, updateUserData, changePassword } from '@/services/userService'
 import { useWishlist } from '@/hooks/useWishlist'
 import { useCart } from '@/context/CartContext'
 import { useRouter } from 'next/navigation'
 import { getUserOrders, cancelOrder } from '@/services/orderService'
-
 import { useSearchParams } from 'next/navigation'
-
 import ProtectedRoute from '@/components/ProtectedRoute'
+
+export const dynamic = 'force-dynamic'
 
 
 const STATUS_COLORS = {
@@ -53,18 +53,6 @@ function SaveBtn({ onClick, saved }) {
       onMouseEnter={e => e.currentTarget.style.background = 'var(--accent)'}
       onMouseLeave={e => e.currentTarget.style.background = saved ? 'var(--green)' : 'var(--black)'}
     >{saved ? '✓ Saved!' : 'Save Changes'}</button>
-  )
-}
-
-import { Suspense } from 'react'
-
-export const dynamic = 'force-dynamic'
-
-export default function ProfilePage() {
-  return (
-    <Suspense fallback={null}>
-      <ProfileContent />
-    </Suspense>
   )
 }
 
@@ -513,5 +501,13 @@ function ProfileContent() {
       )}
 
     </ProtectedRoute>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={null}>
+      <ProfileContent />
+    </Suspense>
   )
 }
