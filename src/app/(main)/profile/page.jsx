@@ -56,10 +56,19 @@ function SaveBtn({ onClick, saved }) {
   )
 }
 
+import { Suspense } from 'react'
+
 export const dynamic = 'force-dynamic'
 
-
 export default function ProfilePage() {
+  return (
+    <Suspense fallback={null}>
+      <ProfileContent />
+    </Suspense>
+  )
+}
+
+function ProfileContent() {
   const { user } = useAuth()        
   const [loading, setLoading] = useState(true)  
   const searchParams = useSearchParams()
@@ -502,6 +511,7 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+
     </ProtectedRoute>
   )
 }
