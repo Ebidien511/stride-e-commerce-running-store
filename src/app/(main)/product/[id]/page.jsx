@@ -12,6 +12,9 @@ const SIZES = ['5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5'
 const SOLD_OUT = ['5', '11']
 const TABS = ['Description', 'Full Specs', 'AI Summary']
 
+export const dynamic = 'force-dynamic'
+
+
 export default function ProductDetailPage() {
   const { id } = useParams()
   const { product, loading } = useProduct(id)

@@ -1,5 +1,4 @@
 'use client'
-export const dynamic = 'force-dynamic'
 import { useState } from 'react'
 import { fmt } from '@/lib/validation'
 import { useProducts } from '@/hooks/useProducts'
@@ -8,7 +7,6 @@ import { deleteProduct } from '@/services/productServices'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getAllOrders, updateOrderStatus } from '@/services/orderService'
 import { getCustomerCount } from '@/services/userService'
-
 import { useEffect } from 'react'
 
 const STATUS_COLORS = {
@@ -21,6 +19,8 @@ const STATUS_COLORS = {
 }
 
 const REPORT_TABS = ['Financial', 'Top Products', 'Customers']
+export const dynamic = 'force-dynamic'
+
 
 export default function AdminPage() {
   const { products: PRODUCTS_DATA, loading, refetch } = useProducts()

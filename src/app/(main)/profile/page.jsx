@@ -1,5 +1,4 @@
 'use client'
-export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { getUserData, updateUserData, changePassword } from '@/services/userService'
@@ -56,6 +55,9 @@ function SaveBtn({ onClick, saved }) {
     >{saved ? '✓ Saved!' : 'Save Changes'}</button>
   )
 }
+
+export const dynamic = 'force-dynamic'
+
 
 export default function ProfilePage() {
   const { user } = useAuth()        

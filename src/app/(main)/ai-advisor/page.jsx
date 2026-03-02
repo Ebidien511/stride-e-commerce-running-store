@@ -197,6 +197,9 @@ const QUESTIONS = [
   },
 ]
 
+export const dynamic = 'force-dynamic'
+
+
 export default function AIAdvisorPage() {
   const { products, loading } = useProducts()
   const [phase, setPhase] = useState('intro')   // intro | quiz | loading | results

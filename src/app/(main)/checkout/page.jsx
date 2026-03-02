@@ -1,5 +1,4 @@
 'use client'
-export const dynamic = 'force-dynamic'
 import { useState } from 'react'
 import { useCart } from '@/context/CartContext'
 import { useAuth } from '@/context/AuthContext'
@@ -49,6 +48,9 @@ function Input({ error, ...props }) {
     />
   )
 }
+
+export const dynamic = 'force-dynamic'
+
 
 export default function CheckoutPage() {
   const { user } = useAuth()
