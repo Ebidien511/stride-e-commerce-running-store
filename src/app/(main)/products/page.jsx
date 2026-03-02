@@ -10,8 +10,8 @@ const ARCH_TYPES = ['Neutral', 'Stability', 'Motion Control']
 const BRANDS = ['Nike', 'ASICS', 'Brooks', 'Hoka', 'Adidas', 'New Balance', 'Puma', 'Saucony']
 
 function ProductsContent() {
-  const { products, loading, error } = useProducts()  // 👈 add this
-  const searchParams = useSearchParams()
+  const { products, loading, error } = useProducts() 
+  const searchParams = useSearchParams() 
   const q = searchParams.get('q') || ''
   const aiParam = searchParams.get('ai')
   const aiPromptParam = searchParams.get('prompt')

@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children, requiredRole = 'customer' }) 
 
   useEffect(() => {
     if (loading) return
-    console.log('user:', user, 'role:', role)  // 👈 add this
+    console.log('user:', user, 'role:', role) 
 
     if (!user) { router.replace('/auth'); return }
     if (requiredRole === 'admin' && role !== 'admin') { router.replace('/'); return }

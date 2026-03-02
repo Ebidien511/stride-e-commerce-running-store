@@ -1,5 +1,5 @@
 
-const AI_MODEL='gemini-2.5-flash-lite'
+const AI_MODEL = 'gemini-2.5-flash'
 
 
 export const aiSearch = async (prompt, products) => {

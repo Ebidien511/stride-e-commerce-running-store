@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 'use client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
@@ -57,8 +58,8 @@ function SaveBtn({ onClick, saved }) {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth()        // 👈 must be here
-  const [loading, setLoading] = useState(true)  // 👈 add this
+  const { user } = useAuth()        
+  const [loading, setLoading] = useState(true)  
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'orders')
   const [orders, setOrders] = useState([])
@@ -66,10 +67,6 @@ export default function ProfilePage() {
   const { addItem, openCart } = useCart()
   const router = useRouter()
   const [selectedOrder, setSelectedOrder] = useState(null)
-
-
-
-
 
   // Personal info
   const [info, setInfo] = useState({ firstName: '', lastName: '', email: '', phone: '' })

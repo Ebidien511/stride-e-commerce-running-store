@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 'use client'
 import { useState } from 'react'
 import { useCart } from '@/context/CartContext'
@@ -71,16 +72,16 @@ export default function CheckoutPage() {
     })
   }, [user])
 
-  // Step 2 — Details
+  //Details
   const [details, setDetails] = useState({ firstName: '', lastName: '', email: '', phone: '', street: '', city: '', province: '', postal: '' })
   const [detailsErr, setDetailsErr] = useState({})
 
-  // Step 3 — Payment
+  //Payment
   const [payMethod, setPayMethod] = useState('card')
   const [card, setCard] = useState({ name: '', number: '', expiry: '', cvv: '' })
   const [cardErr, setCardErr] = useState({})
 
-  // Step 4 — Order number
+  //Order number
   const [orderNum, setOrderNum] = useState('')
 
   const setD = (k, v) => { setDetails(p => ({ ...p, [k]: v })); setDetailsErr(p => ({ ...p, [k]: '' })) }
@@ -125,7 +126,7 @@ export default function CheckoutPage() {
         delivery,
         total,
       })
-      await decreaseStock(items)  // 👈 add this
+      await decreaseStock(items) 
       setOrderNum(orderId)
       clearCart()
       setStep(4)
@@ -181,7 +182,7 @@ export default function CheckoutPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 32, alignItems: 'start' }}>
           <div>
-            {/* ── STEP 2: DETAILS ── */}
+            {/* DETAILS ── */}
             {step === 2 && (
               <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 28, letterSpacing: 1 }}>DELIVERY DETAILS</h2>
@@ -268,7 +269,7 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* ── STEP 3: PAYMENT ── */}
+            {/*  PAYMENT ── */}
             {step === 3 && (
               <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <h2 style={{ fontFamily: 'Bebas Neue', fontSize: 28, letterSpacing: 1 }}>PAYMENT METHOD</h2>
@@ -345,7 +346,7 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* ── STEP 4: CONFIRMATION ── */}
+            {/* CONFIRMATION ── */}
             {step === 4 && (
               <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: 48, textAlign: 'center' }}>
                 <div style={{ width: 80, height: 80, background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, margin: '0 auto 24px', animation: 'bounceIn 0.5s ease both' }}>✓</div>

@@ -31,7 +31,6 @@ export default function AboutPage() {
                 </div>
             </section>
 
-            {/* IMAGE BANNER 1 — Full width */}
             <div style={{
                 width: '100%',
                 height: 480,
@@ -42,8 +41,7 @@ export default function AboutPage() {
                 position: 'relative',
                 overflow: 'hidden',
             }}>
-                {/* 🖼️ REPLACE: Add a wide action shot of runners here */}
-                <img src="https://res.cloudinary.com/dytwnm405/image/upload/v1772406821/50a715379ec98bd6aad589f4da4cfc74_mymu3z.jpg" alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1772406821/50a715379ec98bd6aad589f4da4cfc74_mymu3z.jpg`} alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
 
             {/* MISSION */}
@@ -66,7 +64,6 @@ export default function AboutPage() {
                     </Link>
                 </div>
 
-                {/* 🖼️ REPLACE: Add a close-up product or lifestyle image */}
                 <div style={{
                     aspectRatio: '4/5',
                     background: 'var(--grey)',
@@ -76,7 +73,7 @@ export default function AboutPage() {
                     justifyContent: 'center',
                     overflow: 'hidden',
                 }}>
-                    <img src="https://res.cloudinary.com/dytwnm405/image/upload/v1772406122/6eabb1e6a0d7cd80030c7822c67ad52d_s0tnrw.jpg" alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1772406122/6eabb1e6a0d7cd80030c7822c67ad52d_s0tnrw.jpg`} alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
                 </div>
             </section>
@@ -154,21 +151,18 @@ export default function AboutPage() {
             <section style={{ padding: '0 48px 96px', maxWidth: 1400, margin: '0 auto' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
 
-                    {/* 🖼️ REPLACE: Add store/brand image */}
                     <div style={{ aspectRatio: '3/4', background: 'var(--grey)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                        <img src="https://res.cloudinary.com/dytwnm405/image/upload/v1772406542/6d394fbed9c8862ad406bb88a1b63368_orqcde.jpg" alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1772406542/6d394fbed9c8862ad406bb88a1b63368_orqcde.jpg`} alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
                     </div>
 
-                    {/* 🖼️ REPLACE: Add runner lifestyle image */}
                     <div style={{ aspectRatio: '3/4', background: 'var(--grey)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginTop: 48 }}>
-                        <img src="https://res.cloudinary.com/dytwnm405/image/upload/v1772406541/1c53e037aea3cb1502ff2c7f6f8b730b_jxz4u3.jpg" alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1772406541/1c53e037aea3cb1502ff2c7f6f8b730b_jxz4u3.jpg`} alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
                     </div>
 
-                    {/* 🖼️ REPLACE: Add team or brand image */}
                     <div style={{ aspectRatio: '3/4', background: 'var(--grey)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                        <img src="https://res.cloudinary.com/dytwnm405/image/upload/v1772406542/9b92e1be031638fccc45ce09f661b2f2_lwffpf.jpg" alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1772406542/9b92e1be031638fccc45ce09f661b2f2_lwffpf.jpg`} alt="..." style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
                     </div>
 

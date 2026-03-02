@@ -14,8 +14,8 @@ const TABS = ['Description', 'Full Specs', 'AI Summary']
 
 export default function ProductDetailPage() {
   const { id } = useParams()
-  const { product, loading } = useProduct(id)           // 👈 replaces getProductById
-  const { products } = useProducts()                     // 👈 replaces PRODUCTS
+  const { product, loading } = useProduct(id)
+  const { products } = useProducts()
   const { addItem, openCart } = useCart()
   const router = useRouter()
 
@@ -45,7 +45,7 @@ export default function ProductDetailPage() {
     }
   }
 
-  const related = products.filter(p => p.id !== id).slice(0, 4)  // 👈 replaces PRODUCTS.filter
+  const related = products.filter(p => p.id !== id).slice(0, 4)
 
   if (loading) return (
     <div style={{ padding: '80px 48px', textAlign: 'center' }}>

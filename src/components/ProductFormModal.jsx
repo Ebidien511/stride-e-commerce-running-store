@@ -14,7 +14,7 @@ const EMPTY_FORM = {
   brand: '', name: '', category: '', arch: '', terrain: '',
   drop: '', weight: '', price: '', originalPrice: '', cost: '',
   tag: '', description: '', features: '', stock: '',
-  images: ['', '', '', ''],  // 👈 add this
+  images: ['', '', '', ''],  
 }
 
 // When editing, convert the product object to form-compatible values
